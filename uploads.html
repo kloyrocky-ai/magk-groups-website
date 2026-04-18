@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M.A.G.K Groups — Project Media Upload</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --dark:#0F0F16;--dark2:#141420;--panel:#1A1A28;--panel2:#1E1E2E;
+    --gold:#C9A84C;--gold2:#E8C97A;--white:#F0EDE6;--muted:#7A7A8A;
+    --border:rgba(201,168,76,0.15);--border2:rgba(255,255,255,0.06);
+    --green:#1D6A40;--red:#C0392B;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit',sans-serif;background:var(--dark);color:var(--white);min-height:100vh;}
+
+  /* ── Login ── */
+  #loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse 60% 60% at 50% 40%,rgba(201,168,76,0.05) 0%,transparent 60%);}
+  .login-box{background:var(--panel);border:1px solid var(--border);padding:40px;width:100%;max-width:400px;border-radius:4px;position:relative;overflow:hidden;}
+  .login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);}
+  .login-logo{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;color:var(--white);}
+  .login-logo span{color:var(--gold);}
+  .login-sub{font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:32px;margin-top:4px;}
+  .field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+  .field label{font-size:0.68rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
+  .field input{background:rgba(255,255,255,0.04);border:1px solid var(--border2);color:var(--white);font-family:'Outfit',sans-serif;font-size:0.9rem;padding:13px 16px;border-radius:2px;outline:none;transition:border-color 0.3s;width:100%;}
+  .field input:focus{border-color:var(--gold);}
+  .login-btn{width:100%;background:var(--gold);color:#0A0A0A;border:none;font-family:'Outfit',sans-serif;font-size:0.82rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:14px;cursor:pointer;border-radius:2px;transition:all 0.3s;margin-top:8px;}
+  .login-btn:hover{background:var(--gold2);}
+  .login-err{font-size:0.8rem;color:#e74c3c;margin-top:12px;text-align:center;display:none;}
+
+  /* ── App ── */
+  #app{display:none;min-height:100vh;}
+
+  /* ── Top Nav ── */
+  .top-nav{background:rgba(10,10,16,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border2);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:var(--white);}
+  .nav-logo span{color:var(--gold);}
+  .nav-badge{font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);background:rgba(201,168,76,0.1);padding:3px 10px;border-radius:2px;margin-left:10px;}
+  .nav-right{display:flex;align-items:center;gap:16px;}
+  .nav-link{font-size:0.75rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.2s;cursor:pointer;}
+  .nav-link:hover{color:var(--gold);}
+
+  /* ── Content ── */
+  .content{max-width:900px;margin:0 auto;padding:36px 20px;}
+
+  .page-title{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300;color:var(--white);margin-bottom:6px;}
+  .page-title em{font-style:italic;color:var(--gold);}
+  .page-sub{font-size:0.88rem;color:var(--muted);margin-bottom:32px;line-height:1.7;}
+
+  /* ── Project Selector ── */
+  .selector-card{background:var(--panel);border:1px solid var(--border2);padding:24px;border-radius:4px;margin-bottom:28px;position:relative;overflow:hidden;}
+  .selector-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);}
+  .selector-label{font-size:0.7rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+  .project-select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border2);color:var(--white);font-family:'Outfit',sans-serif;font-size:0.95rem;padding:14px 16px;border-radius:2px;outline:none;transition:border-color 0.3s;cursor:pointer;}
+  .project-select:focus{border-color:var(--gold);}
+  .project-select option{background:var(--panel);}
+
+  /* ── Upload Section ── */
+  #uploadSection{display:none;}
+
+  .project-info{background:var(--panel2);border:1px solid var(--border2);padding:20px 24px;border-radius:3px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .project-info-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--white);}
+  .project-info-meta{font-size:0.78rem;color:var(--muted);margin-top:3px;}
+  .status-pill{font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;border-radius:20px;}
+  .status-active{background:rgba(29,106,64,0.2);color:#52be80;}
+  .status-planning{background:rgba(41,128,185,0.15);color:#5dade2;}
+  .status-completed{background:rgba(201,168,76,0.15);color:var(--gold);}
+
+  /* ── Upload Form ── */
+  .upload-form{background:var(--panel);border:1px solid var(--border2);border-radius:4px;overflow:hidden;margin-bottom:28px;}
+  .upload-form-head{padding:20px 24px;border-bottom:1px solid var(--border2);}
+  .upload-form-title{font-size:0.82rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--white);}
+  .upload-form-body{padding:24px;}
+
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .form-group{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+  .form-group label{font-size:0.68rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
+  .form-group input,.form-group select,.form-group textarea{background:rgba(255,255,255,0.04);border:1px solid var(--border2);color:var(--white);font-family:'Outfit',sans-serif;font-size:0.9rem;padding:12px 16px;border-radius:2px;outline:none;transition:border-color 0.3s;width:100%;}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);}
+  .form-group select option{background:var(--panel);}
+  .form-group textarea{resize:vertical;min-height:80px;}
+
+  /* ── Drop Zone ── */
+  .drop-zone{border:2px dashed rgba(201,168,76,0.3);border-radius:4px;padding:48px 24px;text-align:center;cursor:pointer;transition:all 0.3s;position:relative;background:rgba(201,168,76,0.02);margin-bottom:16px;}
+  .drop-zone:hover,.drop-zone.drag-over{border-color:var(--gold);background:rgba(201,168,76,0.05);}
+  .drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .drop-icon{font-size:2.5rem;margin-bottom:12px;display:block;}
+  .drop-title{font-size:0.95rem;font-weight:600;color:var(--white);margin-bottom:6px;}
+  .drop-sub{font-size:0.8rem;color:var(--muted);line-height:1.6;}
+  .drop-sub strong{color:var(--gold);}
+
+  /* ── Mobile Camera Button ── */
+  .mobile-camera{display:none;margin-bottom:16px;}
+  .camera-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;background:var(--panel2);border:1px solid var(--border);color:var(--white);font-family:'Outfit',sans-serif;font-size:0.9rem;font-weight:600;padding:16px;border-radius:3px;cursor:pointer;transition:all 0.3s;}
+  .camera-btn:active{background:rgba(201,168,76,0.1);border-color:var(--gold);}
+  .camera-btn input{display:none;}
+
+  @media(max-width:768px){
+    .drop-zone{display:none;}
+    .mobile-camera{display:block;}
+    .form-row{grid-template-columns:1fr;}
+  }
+  @media(min-width:769px){
+    .mobile-camera{display:none;}
+  }
+
+  /* ── Preview Grid ── */
+  .preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:20px;}
+  .preview-item{position:relative;border-radius:3px;overflow:hidden;aspect-ratio:1;background:var(--panel2);border:1px solid var(--border2);}
+  .preview-item img,.preview-item video{width:100%;height:100%;object-fit:cover;}
+  .preview-remove{position:absolute;top:6px;right:6px;width:24px;height:24px;background:rgba(192,57,43,0.9);border:none;border-radius:50%;color:#fff;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+  .preview-remove:hover{background:var(--red);transform:scale(1.1);}
+  .preview-type{position:absolute;bottom:6px;left:6px;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(0,0,0,0.7);color:#fff;padding:2px 6px;border-radius:2px;}
+  .preview-name{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#fff;font-size:0.65rem;padding:4px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* ── Upload Progress ── */
+  .upload-progress{display:none;margin-bottom:16px;}
+  .progress-label-row{display:flex;justify-content:space-between;margin-bottom:8px;}
+  .progress-label-row span{font-size:0.78rem;color:var(--muted);}
+  .progress-label-row strong{font-size:0.78rem;color:var(--gold);}
+  .progress-track{background:rgba(255,255,255,0.06);border-radius:4px;height:8px;overflow:hidden;}
+  .progress-bar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;transition:width 0.3s;width:0%;}
+
+  /* ── Submit ── */
+  .submit-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  .file-count{font-size:0.8rem;color:var(--muted);}
+  .file-count strong{color:var(--gold);}
+  .submit-btn{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:#0A0A0A;border:none;font-family:'Outfit',sans-serif;font-size:0.82rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:14px 32px;border-radius:2px;cursor:pointer;transition:all 0.3s;}
+  .submit-btn:hover{background:var(--gold2);transform:translateY(-1px);}
+  .submit-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+  /* ── Existing Media ── */
+  .media-section{background:var(--panel);border:1px solid var(--border2);border-radius:4px;overflow:hidden;}
+  .media-section-head{padding:18px 24px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;}
+  .media-section-title{font-size:0.82rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--white);}
+  .media-section-body{padding:24px;}
+
+  .media-update-group{margin-bottom:28px;}
+  .update-label{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+  .update-title{font-size:0.95rem;font-weight:600;color:var(--white);margin-bottom:4px;}
+  .update-date{font-size:0.72rem;color:var(--muted);margin-bottom:14px;}
+  .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;}
+  .media-thumb{border-radius:3px;overflow:hidden;aspect-ratio:1;background:var(--panel2);border:1px solid var(--border2);cursor:pointer;position:relative;transition:all 0.2s;}
+  .media-thumb:hover{border-color:var(--gold);}
+  .media-thumb img,.media-thumb video{width:100%;height:100%;object-fit:cover;}
+  .media-play-icon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);font-size:1.5rem;}
+  .media-delete{position:absolute;top:4px;right:4px;width:22px;height:22px;background:rgba(192,57,43,0.85);border:none;border-radius:50%;color:#fff;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;}
+  .media-thumb:hover .media-delete{opacity:1;}
+
+  .empty-media{text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;}
+
+  /* ── Lightbox ── */
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:999;display:none;align-items:center;justify-content:center;padding:20px;}
+  .lightbox.open{display:flex;}
+  .lightbox img,.lightbox video{max-width:100%;max-height:90vh;border-radius:4px;object-fit:contain;}
+  .lightbox-close{position:absolute;top:20px;right:20px;background:none;border:1px solid rgba(255,255,255,0.2);color:#fff;width:40px;height:40px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+  .lightbox-close:hover{background:rgba(255,255,255,0.1);}
+
+  /* ── Toast ── */
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#fff;padding:12px 20px;border-radius:3px;font-size:0.82rem;font-weight:600;z-index:9999;opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none;max-width:300px;}
+  .toast.show{opacity:1;transform:translateY(0);}
+  .toast.error{background:var(--red);}
+
+  @media(max-width:600px){
+    .content{padding:24px 16px;}
+    .upload-form-body{padding:16px;}
+    .submit-row{flex-direction:column;align-items:stretch;}
+    .submit-btn{justify-content:center;}
+  }
+</style>
+</head>
+<body>
+
+<!-- Supabase — REPLACE THESE -->
+<script>
+  const SUPABASE_URL = 'https://jljpbbszkfucwitdaruo.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_9mum-2GrMjtlmzW72Df4Gw_ewoyMBtk';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
+
+<!-- Login -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">M.A.G.K<span>.</span></div>
+    <div class="login-sub">Media Upload — Admin Only</div>
+    <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="admin@magkgroups.rw"></div>
+    <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••"></div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-err" id="loginErr">Invalid credentials. Try again.</div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <nav class="top-nav">
+    <div style="display:flex;align-items:center;">
+      <div class="nav-logo">M.A.G.K<span>.</span></div>
+      <span class="nav-badge">Media Upload</span>
+    </div>
+    <div class="nav-right">
+      <a href="admin.html" class="nav-link">← Dashboard</a>
+      <span class="nav-link" onclick="doLogout()">Sign Out</span>
+    </div>
+  </nav>
+
+  <div class="content">
+    <h1 class="page-title">Project <em>Media Upload</em></h1>
+    <p class="page-sub">Upload photos and videos for each project milestone. Your clients will see them immediately in their portal. Supported: JPG, PNG, WEBP, MP4, MOV. Max 50MB per file.</p>
+
+    <!-- Project Selector -->
+    <div class="selector-card">
+      <div class="selector-label">Step 1 — Select Project</div>
+      <select class="project-select" id="projectSelect" onchange="onProjectSelected()">
+        <option value="">Choose a project to upload media for...</option>
+      </select>
+    </div>
+
+    <!-- Upload Section (shown after project selected) -->
+    <div id="uploadSection">
+
+      <!-- Project Info Bar -->
+      <div class="project-info" id="projectInfoBar"></div>
+
+      <!-- Upload Form -->
+      <div class="upload-form">
+        <div class="upload-form-head">
+          <div class="upload-form-title">Step 2 — Add Photos / Videos</div>
+        </div>
+        <div class="upload-form-body">
+
+          <!-- Update Details -->
+          <div class="form-row">
+            <div class="form-group">
+              <label>Milestone / Update Title *</label>
+              <input type="text" id="updateTitle" placeholder="e.g. Foundation Complete, Tiling Done">
+            </div>
+            <div class="form-group">
+              <label>Update Type</label>
+              <select id="updateType">
+                <option value="progress">Progress Update</option>
+                <option value="milestone">Milestone Reached</option>
+                <option value="completion">Project Complete</option>
+                <option value="issue">Issue / Delay</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Progress % (optional)</label>
+              <input type="number" id="progressPct" min="0" max="100" placeholder="e.g. 65">
+            </div>
+            <div class="form-group">
+              <label>Description (optional)</label>
+              <input type="text" id="updateDesc" placeholder="Brief description of what was done">
+            </div>
+          </div>
+
+          <!-- Desktop Drop Zone -->
+          <div class="drop-zone" id="dropZone">
+            <input type="file" id="fileInput" multiple accept="image/*,video/*" onchange="onFilesSelected(this.files)">
+            <span class="drop-icon">📁</span>
+            <div class="drop-title">Drag & drop photos or videos here</div>
+            <div class="drop-sub">or <strong>click to browse</strong> from your computer<br>JPG · PNG · WEBP · MP4 · MOV — up to 50MB each</div>
+          </div>
+
+          <!-- Mobile Camera / Gallery Buttons -->
+          <div class="mobile-camera">
+            <button class="camera-btn" onclick="document.getElementById('cameraInput').click()">
+              📷 Take Photo / Record Video
+              <input type="file" id="cameraInput" accept="image/*,video/*" capture="environment" multiple onchange="onFilesSelected(this.files)">
+            </button>
+            <div style="height:10px;"></div>
+            <button class="camera-btn" onclick="document.getElementById('galleryInput').click()">
+              🖼️ Choose from Gallery
+              <input type="file" id="galleryInput" accept="image/*,video/*" multiple onchange="onFilesSelected(this.files)">
+            </button>
+          </div>
+
+          <!-- Preview Grid -->
+          <div class="preview-grid" id="previewGrid"></div>
+
+          <!-- Upload Progress -->
+          <div class="upload-progress" id="uploadProgress">
+            <div class="progress-label-row">
+              <span id="progressText">Uploading...</span>
+              <strong id="progressPct2">0%</strong>
+            </div>
+            <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+          </div>
+
+          <!-- Submit Row -->
+          <div class="submit-row">
+            <div class="file-count" id="fileCount">No files selected</div>
+            <button class="submit-btn" id="submitBtn" onclick="uploadAll()" disabled>
+              <span id="submitText">Upload & Publish to Client</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Existing Media -->
+      <div class="media-section">
+        <div class="media-section-head">
+          <div class="media-section-title">Uploaded Media for This Project</div>
+          <span style="font-size:0.75rem;color:var(--muted);" id="mediaCount"></span>
+        </div>
+        <div class="media-section-body">
+          <div id="existingMedia"><div class="empty-media">Loading media...</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <div id="lightboxContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let selectedFiles = [];
+  let currentProjectId = null;
+
+  // ── Auth ──────────────────────────────────────────────────────
+  async function doLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const pass  = document.getElementById('loginPass').value;
+    const { error } = await db.auth.signInWithPassword({ email, password: pass });
+    if (error) { document.getElementById('loginErr').style.display = 'block'; return; }
+    showApp();
+  }
+
+  async function doLogout() {
+    await db.auth.signOut();
+    location.reload();
+  }
+
+  async function showApp() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    await loadProjects();
+  }
+
+  // Check existing session
+  (async () => {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) showApp();
+  })();
+
+  document.getElementById('loginPass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  // ── Load Projects ─────────────────────────────────────────────
+  async function loadProjects() {
+    const { data: projects } = await db
+      .from('projects')
+      .select('id, title, status, service_type, location, clients(name)')
+      .order('created_at', { ascending: false });
+
+    const select = document.getElementById('projectSelect');
+    select.innerHTML = '<option value="">Choose a project to upload media for...</option>';
+    (projects || []).forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = `${p.title} — ${p.clients?.name || 'No client'} (${p.status})`;
+      select.appendChild(opt);
+    });
+  }
+
+  // ── Project Selected ──────────────────────────────────────────
+  async function onProjectSelected() {
+    const id = document.getElementById('projectSelect').value;
+    if (!id) { document.getElementById('uploadSection').style.display = 'none'; return; }
+    currentProjectId = id;
+
+    const { data: p } = await db
+      .from('projects')
+      .select('*, clients(name)')
+      .eq('id', id)
+      .single();
+
+    if (p) {
+      document.getElementById('projectInfoBar').innerHTML = `
+        <div>
+          <div class="project-info-name">${p.title}</div>
+          <div class="project-info-meta">${p.clients?.name || '—'} · ${p.service_type || '—'} · ${p.location || '—'}</div>
+        </div>
+        <span class="status-pill status-${p.status}">${p.status}</span>
+      `;
+    }
+
+    document.getElementById('uploadSection').style.display = 'block';
+    resetForm();
+    loadExistingMedia(id);
+  }
+
+  // ── File Selection ────────────────────────────────────────────
+  function onFilesSelected(files) {
+    Array.from(files).forEach(file => {
+      if (file.size > 50 * 1024 * 1024) {
+        showToast(`${file.name} is over 50MB — skipped`, true);
+        return;
+      }
+      if (selectedFiles.find(f => f.name === file.name && f.size === file.size)) return;
+      selectedFiles.push(file);
+    });
+    renderPreviews();
+    updateFileCount();
+  }
+
+  function renderPreviews() {
+    const grid = document.getElementById('previewGrid');
+    grid.innerHTML = '';
+    selectedFiles.forEach((file, i) => {
+      const item = document.createElement('div');
+      item.className = 'preview-item';
+      const isVideo = file.type.startsWith('video/');
+      const url = URL.createObjectURL(file);
+      if (isVideo) {
+        item.innerHTML = `
+          <video src="${url}" muted></video>
+          <div class="preview-type">video</div>
+          <button class="preview-remove" onclick="removeFile(${i})">✕</button>
+        `;
+      } else {
+        item.innerHTML = `
+          <img src="${url}" alt="${file.name}">
+          <button class="preview-remove" onclick="removeFile(${i})">✕</button>
+        `;
+      }
+      grid.appendChild(item);
+    });
+  }
+
+  function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    renderPreviews();
+    updateFileCount();
+  }
+
+  function updateFileCount() {
+    const n = selectedFiles.length;
+    document.getElementById('fileCount').innerHTML = n > 0
+      ? `<strong>${n}</strong> file${n > 1 ? 's' : ''} selected`
+      : 'No files selected';
+    document.getElementById('submitBtn').disabled = n === 0;
+  }
+
+  // ── Drag & Drop ───────────────────────────────────────────────
+  const dropZone = document.getElementById('dropZone');
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    onFilesSelected(e.dataTransfer.files);
+  });
+
+  // ── Upload All ────────────────────────────────────────────────
+  async function uploadAll() {
+    const title = document.getElementById('updateTitle').value.trim();
+    if (!title) { showToast('Please enter a milestone title', true); return; }
+    if (selectedFiles.length === 0) { showToast('Please select at least one file', true); return; }
+
+    const btn = document.getElementById('submitBtn');
+    const progressEl = document.getElementById('uploadProgress');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const progressPct2 = document.getElementById('progressPct2');
+
+    btn.disabled = true;
+    document.getElementById('submitText').textContent = 'Uploading...';
+    progressEl.style.display = 'block';
+
+    // 1. Create project update record
+    const { data: update, error: updateErr } = await db.from('project_updates').insert([{
+      project_id: currentProjectId,
+      title: title,
+      description: document.getElementById('updateDesc').value,
+      update_type: document.getElementById('updateType').value,
+    }]).select().single();
+
+    if (updateErr) {
+      showToast('Error creating update: ' + updateErr.message, true);
+      btn.disabled = false;
+      progressEl.style.display = 'none';
+      return;
+    }
+
+    // 2. Update project progress if provided
+    const pct = parseInt(document.getElementById('progressPct').value);
+    if (!isNaN(pct) && pct >= 0 && pct <= 100) {
+      await db.from('projects').update({ progress_percent: pct }).eq('id', currentProjectId);
+    }
+
+    // 3. Upload each file
+    let uploaded = 0;
+    const mediaRecords = [];
+
+    for (const file of selectedFiles) {
+      const ext = file.name.split('.').pop();
+      const fileName = `${currentProjectId}/${update.id}/${Date.now()}_${Math.random().toString(36).substr(2,6)}.${ext}`;
+
+      const { data: storageData, error: storageErr } = await db.storage
+        .from('project-media')
+        .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+      if (storageErr) {
+        showToast(`Failed to upload ${file.name}`, true);
+      } else {
+        const { data: urlData } = db.storage.from('project-media').getPublicUrl(fileName);
+        mediaRecords.push({
+          project_update_id: update.id,
+          project_id: currentProjectId,
+          file_url: urlData.publicUrl,
+          file_name: file.name,
+          file_type: file.type.startsWith('video/') ? 'video' : 'image',
+          file_size: file.size,
+        });
+      }
+
+      uploaded++;
+      const pctDone = Math.round((uploaded / selectedFiles.length) * 100);
+      progressBar.style.width = pctDone + '%';
+      progressPct2.textContent = pctDone + '%';
+      progressText.textContent = `Uploading ${uploaded} of ${selectedFiles.length}...`;
+    }
+
+    // 4. Save media records to database
+    if (mediaRecords.length > 0) {
+      await db.from('project_media').insert(mediaRecords);
+    }
+
+    // Done
+    progressBar.style.width = '100%';
+    progressText.textContent = 'Complete!';
+    showToast(`✓ ${uploaded} file${uploaded > 1 ? 's' : ''} uploaded. Client can see them now.`);
+
+    setTimeout(() => {
+      resetForm();
+      progressEl.style.display = 'none';
+      btn.disabled = false;
+      document.getElementById('submitText').textContent = 'Upload & Publish to Client';
+      loadExistingMedia(currentProjectId);
+    }, 1500);
+  }
+
+  // ── Load Existing Media ───────────────────────────────────────
+  async function loadExistingMedia(projectId) {
+    const container = document.getElementById('existingMedia');
+    container.innerHTML = '<div class="empty-media">Loading...</div>';
+
+    // Get updates with media
+    const { data: updates } = await db
+      .from('project_updates')
+      .select('*, project_media(*)')
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: false });
+
+    if (!updates || updates.length === 0) {
+      container.innerHTML = '<div class="empty-media">No media uploaded yet for this project.</div>';
+      document.getElementById('mediaCount').textContent = '';
+      return;
+    }
+
+    let totalMedia = 0;
+    const updatesWithMedia = updates.filter(u => u.project_media && u.project_media.length > 0);
+    updatesWithMedia.forEach(u => totalMedia += u.project_media.length);
+    document.getElementById('mediaCount').textContent = totalMedia + ' file' + (totalMedia !== 1 ? 's' : '');
+
+    if (updatesWithMedia.length === 0) {
+      container.innerHTML = '<div class="empty-media">No media uploaded yet. Upload your first photos above.</div>';
+      return;
+    }
+
+    container.innerHTML = updatesWithMedia.map(u => `
+      <div class="media-update-group">
+        <div class="update-label">${u.update_type}</div>
+        <div class="update-title">${u.title}</div>
+        <div class="update-date">${formatDate(u.created_at)} · ${u.project_media.length} file${u.project_media.length !== 1 ? 's' : ''}</div>
+        <div class="media-grid">
+          ${u.project_media.map(m => `
+            <div class="media-thumb" onclick="openLightbox('${m.file_url}', '${m.file_type}')">
+              ${m.file_type === 'video'
+                ? `<video src="${m.file_url}" muted></video><div class="media-play-icon">▶</div>`
+                : `<img src="${m.file_url}" alt="${m.file_name}">`
+              }
+              <button class="media-delete" onclick="event.stopPropagation(); deleteMedia('${m.id}', '${m.file_url}')" title="Delete">✕</button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('<hr style="border:none;border-top:1px solid var(--border2);margin:20px 0;">');
+  }
+
+  // ── Delete Media ──────────────────────────────────────────────
+  async function deleteMedia(id, fileUrl) {
+    if (!confirm('Delete this file? The client will no longer see it.')) return;
+
+    // Extract file path from URL
+    const path = fileUrl.split('/project-media/')[1];
+    if (path) {
+      await db.storage.from('project-media').remove([path]);
+    }
+    await db.from('project_media').delete().eq('id', id);
+    showToast('File deleted');
+    loadExistingMedia(currentProjectId);
+  }
+
+  // ── Lightbox ──────────────────────────────────────────────────
+  function openLightbox(url, type) {
+    const content = document.getElementById('lightboxContent');
+    content.innerHTML = type === 'video'
+      ? `<video src="${url}" controls autoplay style="max-width:100%;max-height:85vh;border-radius:4px;"></video>`
+      : `<img src="${url}" alt="Project media" style="max-width:100%;max-height:85vh;border-radius:4px;">`;
+    document.getElementById('lightbox').classList.add('open');
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.getElementById('lightboxContent').innerHTML = '';
+  }
+
+  // ── Utilities ─────────────────────────────────────────────────
+  function resetForm() {
+    selectedFiles = [];
+    document.getElementById('previewGrid').innerHTML = '';
+    document.getElementById('updateTitle').value = '';
+    document.getElementById('updateDesc').value = '';
+    document.getElementById('progressPct').value = '';
+    document.getElementById('fileCount').innerHTML = 'No files selected';
+    document.getElementById('submitBtn').disabled = true;
+    try { document.getElementById('fileInput').value = ''; } catch(e){}
+  }
+
+  function formatDate(d) {
+    return new Date(d).toLocaleDateString('en-RW', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function showToast(msg, err = false) {
+    const t = document.getElementById('toast');
+    t.textContent = err ? '✕ ' + msg : '✓ ' + msg;
+    t.className = 'toast show' + (err ? ' error' : '');
+    setTimeout(() => t.className = 'toast', 3500);
+  }
+
+  // Close lightbox on escape
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+</body>
+</html>
