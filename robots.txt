@@ -1,0 +1,16 @@
+# M.A.G.K Groups — robots.txt
+# Controls which pages search engines can index
+
+User-agent: *
+
+# Allow public pages
+Allow: /
+Allow: /index.html
+Allow: /portal.html
+
+# Block admin and upload pages from search engines
+Disallow: /admin.html
+Disallow: /uploads.html
+
+# Sitemap location
+Sitemap: https://magkgroups.netlify.app/sitemap.xml
