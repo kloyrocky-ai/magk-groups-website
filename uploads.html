@@ -199,7 +199,7 @@
   <nav class="top-nav">
     <div style="display:flex;align-items:center;">
       <div class="nav-logo">M.A.G.K<span>.</span></div>
-      <span class="nav-badge">Media Upload</span>
+      <span class="nav-badge">Files &amp; Media</span>
     </div>
     <div class="nav-right">
       <a href="admin.html" class="nav-link">← Dashboard</a>
@@ -208,8 +208,8 @@
   </nav>
 
   <div class="content">
-    <h1 class="page-title">Project <em>Media Upload</em></h1>
-    <p class="page-sub">Upload photos and videos for each project milestone. Your clients will see them immediately in their portal. Supported: JPG, PNG, WEBP, MP4, MOV. Max 50MB per file.</p>
+    <h1 class="page-title">Project <em>Files & Media</em></h1>
+    <p class="page-sub">Upload photos, videos, drawings, estimates, contracts and any other project document. Clients see all files immediately in their portal. Supported: JPG · PNG · MP4 · MOV · PDF · DWG · DXF · DOCX · XLSX · and more. Max 50MB per file.</p>
 
     <!-- Project Selector -->
     <div class="selector-card">
@@ -228,7 +228,7 @@
       <!-- Upload Form -->
       <div class="upload-form">
         <div class="upload-form-head">
-          <div class="upload-form-title">Step 2 — Add Photos / Videos</div>
+          <div class="upload-form-title">Step 2 — Upload Files</div>
         </div>
         <div class="upload-form-body">
 
@@ -236,7 +236,7 @@
           <div class="form-row">
             <div class="form-group">
               <label>Milestone / Update Title *</label>
-              <input type="text" id="updateTitle" placeholder="e.g. Foundation Complete, Tiling Done">
+              <input type="text" id="updateTitle" placeholder="e.g. Foundation Complete, Contract Signed">
             </div>
             <div class="form-group">
               <label>Update Type</label>
@@ -245,6 +245,29 @@
                 <option value="milestone">Milestone Reached</option>
                 <option value="completion">Project Complete</option>
                 <option value="issue">Issue / Delay</option>
+                <option value="document">Document Shared</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>File Category *</label>
+              <select id="fileCategory">
+                <option value="photo">📷 Photos</option>
+                <option value="video">🎥 Videos</option>
+                <option value="drawing">📐 Drawings / Plans (DWG, DXF, PDF)</option>
+                <option value="estimate">🧮 Estimate / Bill of Quantities</option>
+                <option value="contract">📄 Contract / Agreement</option>
+                <option value="report">📊 Report / Progress Document</option>
+                <option value="other">📁 Other Document</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Visible to Client?</label>
+              <select id="clientVisible">
+                <option value="true">Yes — Client can see this</option>
+                <option value="false">No — Admin only (private)</option>
               </select>
             </div>
           </div>
@@ -256,19 +279,19 @@
             </div>
             <div class="form-group">
               <label>Description (optional)</label>
-              <input type="text" id="updateDesc" placeholder="Brief description of what was done">
+              <input type="text" id="updateDesc" placeholder="Brief description of what this is">
             </div>
           </div>
 
           <!-- Desktop Drop Zone -->
           <div class="drop-zone" id="dropZone">
-            <input type="file" id="fileInput" multiple accept="image/*,video/*" onchange="onFilesSelected(this.files)">
+            <input type="file" id="fileInput" multiple accept="image/*,video/*,.pdf,.dwg,.dxf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.zip,.rar,.txt" onchange="onFilesSelected(this.files)">
             <span class="drop-icon">📁</span>
-            <div class="drop-title">Drag & drop photos or videos here</div>
-            <div class="drop-sub">or <strong>click to browse</strong> from your computer<br>JPG · PNG · WEBP · MP4 · MOV — up to 50MB each</div>
+            <div class="drop-title">Drag & drop any files here</div>
+            <div class="drop-sub">or <strong>click to browse</strong> from your computer<br>Photos · Videos · PDFs · Drawings · Word · Excel · Contracts — up to 50MB each</div>
           </div>
 
-          <!-- Mobile Camera / Gallery Buttons -->
+          <!-- Mobile Buttons -->
           <div class="mobile-camera">
             <button class="camera-btn" onclick="document.getElementById('cameraInput').click()">
               📷 Take Photo / Record Video
@@ -276,8 +299,13 @@
             </button>
             <div style="height:10px;"></div>
             <button class="camera-btn" onclick="document.getElementById('galleryInput').click()">
-              🖼️ Choose from Gallery
+              🖼️ Choose Photo / Video from Gallery
               <input type="file" id="galleryInput" accept="image/*,video/*" multiple onchange="onFilesSelected(this.files)">
+            </button>
+            <div style="height:10px;"></div>
+            <button class="camera-btn" onclick="document.getElementById('docsInput').click()">
+              📄 Choose Document (PDF, Drawing, Contract...)
+              <input type="file" id="docsInput" accept=".pdf,.dwg,.dxf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.zip,.txt" multiple onchange="onFilesSelected(this.files)">
             </button>
           </div>
 
@@ -308,7 +336,7 @@
       <!-- Existing Media -->
       <div class="media-section">
         <div class="media-section-head">
-          <div class="media-section-title">Uploaded Media for This Project</div>
+          <div class="media-section-title">All Uploaded Files for This Project</div>
           <span style="font-size:0.75rem;color:var(--muted);" id="mediaCount"></span>
         </div>
         <div class="media-section-body">
@@ -420,23 +448,66 @@
     updateFileCount();
   }
 
+  // ── File Type Helpers ────────────────────────────────────────
+  function getFileIcon(file) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const type = file.type;
+    if (type.startsWith('image/')) return { icon: '🖼️', label: 'photo', color: '#2980B9' };
+    if (type.startsWith('video/')) return { icon: '🎥', label: 'video', color: '#8e44ad' };
+    if (ext === 'pdf') return { icon: '📄', label: 'PDF', color: '#C0392B' };
+    if (['dwg','dxf'].includes(ext)) return { icon: '📐', label: 'drawing', color: '#C9A84C' };
+    if (['doc','docx'].includes(ext)) return { icon: '📝', label: 'word', color: '#2980B9' };
+    if (['xls','xlsx','csv'].includes(ext)) return { icon: '📊', label: 'excel', color: '#1D6A40' };
+    if (['ppt','pptx'].includes(ext)) return { icon: '📑', label: 'slides', color: '#e67e22' };
+    if (['zip','rar'].includes(ext)) return { icon: '🗜️', label: 'archive', color: '#7f8c8d' };
+    return { icon: '📁', label: 'file', color: '#7f8c8d' };
+  }
+
+  function getStorageFileType(file) {
+    const type = file.type;
+    if (type.startsWith('image/')) return 'image';
+    if (type.startsWith('video/')) return 'video';
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext === 'pdf') return 'pdf';
+    if (['dwg','dxf'].includes(ext)) return 'drawing';
+    if (['doc','docx'].includes(ext)) return 'document';
+    if (['xls','xlsx','csv'].includes(ext)) return 'spreadsheet';
+    return 'document';
+  }
+
   function renderPreviews() {
     const grid = document.getElementById('previewGrid');
     grid.innerHTML = '';
     selectedFiles.forEach((file, i) => {
       const item = document.createElement('div');
       item.className = 'preview-item';
+      const isImage = file.type.startsWith('image/');
       const isVideo = file.type.startsWith('video/');
-      const url = URL.createObjectURL(file);
-      if (isVideo) {
+      const { icon, label, color } = getFileIcon(file);
+
+      if (isImage) {
+        const url = URL.createObjectURL(file);
+        item.innerHTML = `
+          <img src="${url}" alt="${file.name}">
+          <div class="preview-name">${file.name}</div>
+          <button class="preview-remove" onclick="removeFile(${i})">✕</button>
+        `;
+      } else if (isVideo) {
+        const url = URL.createObjectURL(file);
         item.innerHTML = `
           <video src="${url}" muted></video>
           <div class="preview-type">video</div>
+          <div class="preview-name">${file.name}</div>
           <button class="preview-remove" onclick="removeFile(${i})">✕</button>
         `;
       } else {
+        // Document / drawing / spreadsheet etc
         item.innerHTML = `
-          <img src="${url}" alt="${file.name}">
+          <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;background:rgba(255,255,255,0.03);">
+            <span style="font-size:2rem;margin-bottom:8px;">${icon}</span>
+            <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${color};background:rgba(0,0,0,0.3);padding:2px 8px;border-radius:2px;">${label}</span>
+          </div>
+          <div class="preview-name">${file.name}</div>
           <button class="preview-remove" onclick="removeFile(${i})">✕</button>
         `;
       }
@@ -479,6 +550,8 @@
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
     const progressPct2 = document.getElementById('progressPct2');
+    const fileCategory = document.getElementById('fileCategory').value;
+    const clientVisible = document.getElementById('clientVisible').value === 'true';
 
     btn.disabled = true;
     document.getElementById('submitText').textContent = 'Uploading...';
@@ -513,7 +586,7 @@
       const ext = file.name.split('.').pop();
       const fileName = `${currentProjectId}/${update.id}/${Date.now()}_${Math.random().toString(36).substr(2,6)}.${ext}`;
 
-      const { data: storageData, error: storageErr } = await db.storage
+      const { error: storageErr } = await db.storage
         .from('project-media')
         .upload(fileName, file, { cacheControl: '3600', upsert: false });
 
@@ -526,7 +599,9 @@
           project_id: currentProjectId,
           file_url: urlData.publicUrl,
           file_name: file.name,
-          file_type: file.type.startsWith('video/') ? 'video' : 'image',
+          file_type: getStorageFileType(file),
+          file_category: fileCategory,
+          client_visible: clientVisible,
           file_size: file.size,
         });
       }
@@ -587,33 +662,69 @@
 
     container.innerHTML = updatesWithMedia.map(u => `
       <div class="media-update-group">
-        <div class="update-label">${u.update_type}</div>
-        <div class="update-title">${u.title}</div>
-        <div class="update-date">${formatDate(u.created_at)} · ${u.project_media.length} file${u.project_media.length !== 1 ? 's' : ''}</div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          <div>
+            <div class="update-label">${u.update_type}${u.project_media[0]?.file_category ? ' · ' + u.project_media[0].file_category : ''}</div>
+            <div class="update-title">${u.title}</div>
+            <div class="update-date">${formatDate(u.created_at)} · ${u.project_media.length} file${u.project_media.length !== 1 ? 's' : ''}</div>
+          </div>
+          <span style="font-size:0.68rem;padding:3px 10px;border-radius:2px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;${u.project_media[0]?.client_visible === false ? 'background:rgba(192,57,43,0.15);color:#e74c3c;' : 'background:rgba(29,106,64,0.15);color:#52be80;'}">
+            ${u.project_media[0]?.client_visible === false ? '🔒 Admin Only' : '👁 Visible to Client'}
+          </span>
+        </div>
         <div class="media-grid">
-          ${u.project_media.map(m => `
-            <div class="media-thumb" onclick="openLightbox('${m.file_url}', '${m.file_type}')">
-              ${m.file_type === 'video'
-                ? `<video src="${m.file_url}" muted></video><div class="media-play-icon">▶</div>`
-                : `<img src="${m.file_url}" alt="${m.file_name}">`
-              }
-              <button class="media-delete" onclick="event.stopPropagation(); deleteMedia('${m.id}', '${m.file_url}')" title="Delete">✕</button>
-            </div>
-          `).join('')}
+          ${u.project_media.map(m => renderMediaThumb(m)).join('')}
         </div>
       </div>
     `).join('<hr style="border:none;border-top:1px solid var(--border2);margin:20px 0;">');
   }
 
+  // ── Render Media Thumb ────────────────────────────────────────
+  function renderMediaThumb(m) {
+    const docIcons = {
+      'pdf':        { icon: '📄', color: '#C0392B' },
+      'drawing':    { icon: '📐', color: '#C9A84C' },
+      'document':   { icon: '📝', color: '#2980B9' },
+      'spreadsheet':{ icon: '📊', color: '#1D6A40' },
+      'video':      { icon: '🎥', color: '#8e44ad' },
+    };
+    const isImage = m.file_type === 'image';
+    const isVideo = m.file_type === 'video';
+    const isDoc   = !isImage && !isVideo;
+    const docInfo = docIcons[m.file_type] || { icon: '📁', color: '#7f8c8d' };
+
+    if (isImage) {
+      return `
+        <div class="media-thumb" onclick="openLightbox('${m.file_url}','image')">
+          <img src="${m.file_url}" alt="${m.file_name || 'photo'}">
+          <button class="media-delete" onclick="event.stopPropagation();deleteMedia('${m.id}','${m.file_url}')" title="Delete">✕</button>
+        </div>`;
+    }
+    if (isVideo) {
+      return `
+        <div class="media-thumb" onclick="openLightbox('${m.file_url}','video')">
+          <video src="${m.file_url}" muted></video>
+          <div class="media-play-icon">▶</div>
+          <button class="media-delete" onclick="event.stopPropagation();deleteMedia('${m.id}','${m.file_url}')" title="Delete">✕</button>
+        </div>`;
+    }
+    // Document / drawing / PDF etc — show icon + download link
+    return `
+      <div class="media-thumb" onclick="window.open('${m.file_url}','_blank')" title="Click to open / download">
+        <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;background:rgba(255,255,255,0.02);">
+          <span style="font-size:1.8rem;margin-bottom:6px;">${docInfo.icon}</span>
+          <span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${docInfo.color};text-align:center;word-break:break-all;padding:0 4px;">${(m.file_name || 'file').substring(0,18)}</span>
+          <span style="font-size:0.55rem;color:rgba(255,255,255,0.3);margin-top:4px;">tap to open</span>
+        </div>
+        <button class="media-delete" onclick="event.stopPropagation();deleteMedia('${m.id}','${m.file_url}')" title="Delete">✕</button>
+      </div>`;
+  }
+
   // ── Delete Media ──────────────────────────────────────────────
   async function deleteMedia(id, fileUrl) {
     if (!confirm('Delete this file? The client will no longer see it.')) return;
-
-    // Extract file path from URL
     const path = fileUrl.split('/project-media/')[1];
-    if (path) {
-      await db.storage.from('project-media').remove([path]);
-    }
+    if (path) await db.storage.from('project-media').remove([decodeURIComponent(path)]);
     await db.from('project_media').delete().eq('id', id);
     showToast('File deleted');
     loadExistingMedia(currentProjectId);
@@ -622,9 +733,11 @@
   // ── Lightbox ──────────────────────────────────────────────────
   function openLightbox(url, type) {
     const content = document.getElementById('lightboxContent');
-    content.innerHTML = type === 'video'
-      ? `<video src="${url}" controls autoplay style="max-width:100%;max-height:85vh;border-radius:4px;"></video>`
-      : `<img src="${url}" alt="Project media" style="max-width:100%;max-height:85vh;border-radius:4px;">`;
+    if (type === 'video') {
+      content.innerHTML = `<video src="${url}" controls autoplay style="max-width:100%;max-height:85vh;border-radius:4px;"></video>`;
+    } else {
+      content.innerHTML = `<img src="${url}" alt="Project photo" style="max-width:100%;max-height:85vh;border-radius:4px;">`;
+    }
     document.getElementById('lightbox').classList.add('open');
   }
 
