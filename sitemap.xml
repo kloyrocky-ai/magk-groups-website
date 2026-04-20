@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- Main website — highest priority -->
   <url>
     <loc>https://magkgroups.netlify.app/</loc>
     <lastmod>2025-09-01</lastmod>
@@ -9,7 +8,13 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- Client portal — lower priority, no indexing needed but included -->
+  <url>
+    <loc>https://magkgroups.netlify.app/privacy.html</loc>
+    <lastmod>2025-09-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
   <url>
     <loc>https://magkgroups.netlify.app/portal.html</loc>
     <lastmod>2025-09-01</lastmod>

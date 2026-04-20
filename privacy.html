@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — M.A.G.K Groups</title>
+<meta name="description" content="Privacy Policy for M.A.G.K Groups. Learn how we collect, use, and protect your personal information.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://magkgroups.netlify.app/privacy.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0A0A0A;--dark:#111118;--dark2:#16161F;--mid:#1E1E2A;
+    --gold:#C9A84C;--gold2:#E8C97A;
+    --white:#F5F2EC;--muted:#8A8A9A;
+    --border:rgba(201,168,76,0.2);--border2:rgba(255,255,255,0.06);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Outfit',sans-serif;background:var(--dark);color:var(--white);overflow-x:hidden;}
+
+  body::before{
+    content:'';position:fixed;inset:0;z-index:0;opacity:0.03;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    pointer-events:none;
+  }
+
+  /* Nav */
+  nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 6%;
+    background:rgba(10,10,10,0.92);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border2);
+  }
+  .nav-logo{
+    font-family:'Bebas Neue',sans-serif;font-size:1.6rem;
+    letter-spacing:0.12em;color:var(--white);text-decoration:none;
+    display:flex;align-items:center;gap:10px;
+  }
+  .nav-logo span{color:var(--gold);}
+  .logo-dot{
+    width:6px;height:6px;background:var(--gold);
+    border-radius:50%;display:inline-block;
+    animation:pulse 2s infinite;
+  }
+  .nav-back{
+    font-size:0.75rem;font-weight:600;letter-spacing:0.1em;
+    text-transform:uppercase;color:var(--muted);
+    text-decoration:none;transition:color 0.3s;
+    display:flex;align-items:center;gap:8px;
+  }
+  .nav-back:hover{color:var(--gold);}
+
+  /* Hero */
+  .page-hero{
+    padding:80px 6% 60px;
+    border-bottom:1px solid var(--border2);
+    background:var(--dark2);
+    position:relative;
+    overflow:hidden;
+  }
+  .page-hero::before{
+    content:'';position:absolute;top:0;left:0;right:0;
+    height:2px;
+    background:linear-gradient(90deg,var(--gold),var(--gold2),transparent);
+  }
+  .page-hero-inner{max-width:800px;}
+  .page-tag{
+    font-size:0.7rem;font-weight:600;letter-spacing:0.3em;
+    text-transform:uppercase;color:var(--gold);
+    margin-bottom:16px;display:flex;align-items:center;gap:12px;
+  }
+  .page-tag::before{content:'';width:30px;height:1px;background:var(--gold);}
+  .page-title{
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(2.5rem,5vw,4rem);
+    font-weight:300;line-height:1.05;
+    color:var(--white);margin-bottom:16px;
+  }
+  .page-title em{font-style:italic;color:var(--gold);}
+  .page-meta{
+    font-size:0.78rem;color:var(--muted);
+    display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  }
+  .page-meta span{display:flex;align-items:center;gap:6px;}
+
+  /* Layout */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:0;
+    max-width:1100px;
+    margin:0 auto;
+    padding:60px 6%;
+    align-items:start;
+  }
+
+  /* Sidebar TOC */
+  .toc{
+    position:sticky;top:80px;
+    padding-right:40px;
+    border-right:1px solid var(--border2);
+  }
+  .toc-title{
+    font-size:0.68rem;font-weight:700;letter-spacing:0.2em;
+    text-transform:uppercase;color:var(--muted);
+    margin-bottom:16px;
+  }
+  .toc-list{list-style:none;display:flex;flex-direction:column;gap:4px;}
+  .toc-list a{
+    font-size:0.78rem;color:var(--muted);text-decoration:none;
+    padding:6px 10px;border-left:2px solid transparent;
+    display:block;transition:all 0.2s;border-radius:0 2px 2px 0;
+  }
+  .toc-list a:hover{color:var(--gold);border-left-color:var(--gold);background:rgba(201,168,76,0.04);}
+
+  /* Content */
+  .content{padding-left:56px;}
+
+  .section{margin-bottom:52px;}
+  .section:last-child{margin-bottom:0;}
+
+  .section-num{
+    font-family:'Cormorant Garamond',serif;
+    font-size:0.78rem;color:var(--gold);opacity:0.7;
+    margin-bottom:8px;display:block;
+  }
+  .section h2{
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.7rem;font-weight:600;
+    color:var(--white);margin-bottom:20px;line-height:1.2;
+  }
+  .section h2 em{font-style:italic;color:var(--gold);}
+
+  .section p{
+    font-size:0.92rem;font-weight:300;
+    color:var(--muted);line-height:1.9;
+    margin-bottom:16px;
+  }
+  .section p strong{color:var(--white);font-weight:500;}
+  .section p:last-child{margin-bottom:0;}
+
+  .section ul{
+    list-style:none;
+    margin:16px 0;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .section ul li{
+    font-size:0.9rem;color:var(--muted);
+    line-height:1.7;padding-left:20px;
+    position:relative;
+  }
+  .section ul li::before{
+    content:'◆';position:absolute;left:0;
+    font-size:0.4rem;color:var(--gold);top:7px;
+  }
+  .section ul li strong{color:var(--white);font-weight:500;}
+
+  .highlight-box{
+    background:rgba(201,168,76,0.04);
+    border:1px solid var(--border);
+    border-left:3px solid var(--gold);
+    padding:20px 24px;
+    border-radius:0 3px 3px 0;
+    margin:20px 0;
+  }
+  .highlight-box p{
+    font-size:0.88rem;color:var(--white);
+    line-height:1.7;margin:0;
+  }
+
+  .contact-block{
+    background:var(--mid);
+    border:1px solid var(--border);
+    padding:28px 32px;
+    border-radius:3px;
+    margin-top:20px;
+    position:relative;overflow:hidden;
+  }
+  .contact-block::before{
+    content:'';position:absolute;top:0;left:0;right:0;
+    height:2px;background:linear-gradient(90deg,var(--gold),transparent);
+  }
+  .contact-block h4{
+    font-size:0.85rem;font-weight:700;
+    letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--white);margin-bottom:16px;
+  }
+  .contact-row{
+    display:flex;align-items:center;gap:12px;
+    margin-bottom:10px;
+  }
+  .contact-row:last-child{margin-bottom:0;}
+  .contact-row-icon{
+    font-size:0.9rem;width:20px;text-align:center;flex-shrink:0;
+  }
+  .contact-row-text{font-size:0.85rem;color:var(--muted);}
+  .contact-row-text a{color:var(--gold);text-decoration:none;}
+  .contact-row-text a:hover{text-decoration:underline;}
+
+  /* Divider */
+  .divider{
+    height:1px;background:var(--border2);
+    margin:40px 0;
+  }
+
+  /* Footer */
+  footer{
+    background:var(--black);
+    border-top:1px solid var(--border2);
+    padding:36px 6%;
+  }
+  .footer-inner{
+    max-width:1100px;margin:0 auto;
+    display:flex;align-items:center;justify-content:space-between;gap:20px;
+    flex-wrap:wrap;
+  }
+  .footer-logo{
+    font-family:'Bebas Neue',sans-serif;font-size:1.3rem;
+    letter-spacing:0.12em;color:var(--white);
+  }
+  .footer-logo span{color:var(--gold);}
+  .footer-copy{font-size:0.72rem;color:var(--muted);text-align:center;}
+  .footer-links{display:flex;gap:20px;}
+  .footer-links a{
+    font-size:0.72rem;font-weight:600;letter-spacing:0.1em;
+    text-transform:uppercase;color:var(--muted);text-decoration:none;
+    transition:color 0.3s;
+  }
+  .footer-links a:hover{color:var(--gold);}
+
+  /* WhatsApp */
+  .wa-float{position:fixed;bottom:28px;right:28px;z-index:999;}
+  .wa-btn{
+    width:54px;height:54px;background:#25D366;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 24px rgba(37,211,102,0.4);
+    transition:all 0.3s;position:relative;
+    text-decoration:none;
+  }
+  .wa-btn::before{
+    content:'';position:absolute;inset:-4px;border-radius:50%;
+    border:2px solid rgba(37,211,102,0.3);
+    animation:waPulse 2s ease infinite;
+  }
+  .wa-btn:hover{transform:scale(1.08);}
+  .wa-btn svg{width:28px;height:28px;fill:white;}
+
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.7);}}
+  @keyframes waPulse{0%{transform:scale(1);opacity:1;}100%{transform:scale(1.4);opacity:0;}}
+
+  @media(max-width:768px){
+    .layout{grid-template-columns:1fr;padding:40px 6%;}
+    .toc{display:none;}
+    .content{padding-left:0;}
+    .footer-inner{flex-direction:column;text-align:center;}
+    .footer-links{justify-content:center;}
+    .wa-float{bottom:20px;right:20px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">M.A.G.K<span>.</span> <div class="logo-dot"></div></a>
+  <a href="index.html" class="nav-back">← Back to Website</a>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="page-tag">Legal</div>
+    <h1 class="page-title">Privacy <em>Policy</em></h1>
+    <div class="page-meta">
+      <span>📅 Effective Date: September 2025</span>
+      <span>📍 M.A.G.K Groups — Nyagatare, Rwanda</span>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- Table of Contents -->
+  <aside class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#information">Information We Collect</a></li>
+      <li><a href="#use">How We Use Your Information</a></li>
+      <li><a href="#sharing">Sharing Your Information</a></li>
+      <li><a href="#storage">Data Storage & Security</a></li>
+      <li><a href="#rights">Your Rights</a></li>
+      <li><a href="#cookies">Cookies</a></li>
+      <li><a href="#thirdparty">Third-Party Services</a></li>
+      <li><a href="#children">Children's Privacy</a></li>
+      <li><a href="#changes">Changes to This Policy</a></li>
+      <li><a href="#contact">Contact Us</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="content">
+
+    <div class="section" id="overview">
+      <span class="section-num">01</span>
+      <h2><em>Overview</em></h2>
+      <p>M.A.G.K Groups ("we", "our", "us") is a registered construction and technology company based in Nyagatare, Eastern Province, Rwanda. We are committed to protecting the personal information of our clients, website visitors, and business partners.</p>
+      <p>This Privacy Policy explains what information we collect, how we use it, and the choices you have regarding your data. By using our website or services, you agree to the terms described here.</p>
+      <div class="highlight-box">
+        <p><strong>Simple version:</strong> We collect only what we need to serve you. We do not sell your data. We do not share it with anyone who does not need it to help run your project.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section" id="information">
+      <span class="section-num">02</span>
+      <h2>Information We <em>Collect</em></h2>
+      <p>We collect information in two ways — information you give us directly, and basic information collected automatically when you use our website.</p>
+      <p><strong>Information you provide directly:</strong></p>
+      <ul>
+        <li><strong>Contact form submissions</strong> — your name, phone number, service requested, project location, and description</li>
+        <li><strong>Client portal registration</strong> — your email address used to access project tracking</li>
+        <li><strong>Direct communications</strong> — messages sent via WhatsApp, email, or phone</li>
+        <li><strong>Project information</strong> — details about your construction project provided during consultation</li>
+      </ul>
+      <p><strong>Information collected automatically:</strong></p>
+      <ul>
+        <li><strong>Basic usage data</strong> — pages visited, time spent on the site (via Google Search Console only)</li>
+        <li><strong>Device information</strong> — browser type and general location region for improving site performance</li>
+      </ul>
+      <p>We do not use tracking pixels, advertising cookies, or behavioral profiling tools on this website.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section" id="use">
+      <span class="section-num">03</span>
+      <h2>How We Use Your <em>Information</em></h2>
+      <p>We use the information we collect for the following purposes only:</p>
+      <ul>
+        <li>To respond to your enquiry and provide a project quotation</li>
+        <li>To manage your construction project and keep you updated on progress</li>
+        <li>To give you access to the client portal so you can track your project</li>
+        <li>To send you project-related documents such as contracts, estimates, and milestone reports</li>
+        <li>To contact you about your project via phone, WhatsApp, or email</li>
+        <li>To comply with legal and regulatory obligations in Rwanda</li>
+      </ul>
+      <p>We do not use your information for marketing, advertising, or any purpose unrelated to your project or enquiry.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section" id="sharing">
+      <span class="section-num">04</span>
+      <h2>Sharing Your <em>Information</em></h2>
+      <p>We do not sell, rent, or trade your personal information to any third party. We may share limited information only in the following circumstances:</p>
+      <ul>
+        <li><strong>Service delivery</strong> — with subcontractors or suppliers only when strictly necessary to complete your project, and only the information they need</li>
+        <li><strong>Legal compliance</strong> — when required by Rwandan law, court order, or government authority</li>
+        <li><strong>Technology partners</strong> — our website uses Supabase for data storage (see Third-Party Services section)</li>
+      </ul>
+      <p>Any party with whom we share your data is bound by confidentiality obligations. Your project information is never shared publicly.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section" id="storage">
+      <span class="section-num">05</span>
+      <h2>Data Storage <em>& Security</em></h2>
+      <p>Your data is stored securely using Supabase, a professional database platform with industry-standard encryption and security protocols. Data is stored on servers within the EU region.</p>
+      <p>We apply the following security measures:</p>
+      <ul>
+        <li>Row-level security policies — each client only sees their own project data</li>
+        <li>Encrypted data transmission (HTTPS) on all pages</li>
+        <li>Password-protected admin access — only authorized M.A.G.K Groups personnel can access your data</li>
+        <li>Regular access reviews to ensure only necessary personnel have access</li>
+      </ul>
+      <p>We retain your data for as long as necessary to complete your project and fulfill any legal obligations. If you request deletion of your data, we will action it within 30 days.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section" id="rights">
+      <span class="section-num">06</span>
+      <h2>Your <em>Rights</em></h2>
+      <p>You have the following rights regarding your personal information:</p>
+      <ul>
+        <li><strong>Right to access</strong> — you can request a copy of the personal information we hold about you</li>
+        <li><strong>Right to correction</strong> — you can ask us to correct any inaccurate information</li>
+        <li><strong>Right to deletion</strong> — you can request that we delete your personal information</li>
+        <li><strong>Right to withdraw consent</strong> — you can withdraw consent for us to contact you at any time</li>
+        <li><strong>Right to object</strong> — you can object to how we process your data</li>
+      </ul>
+      <p>To exercise any of these rights, contact us using the details at the bottom of this page. We will respond within 30 days.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section" id="cookies">
+      <span class="section-num">07</span>
+      <h2><em>Cookies</em></h2>
+      <p>Our website uses minimal cookies. We do not use advertising cookies, social media tracking cookies, or any cookie-based behavioral profiling.</p>
+      <p>The only cookies we use are:</p>
+      <ul>
+        <li><strong>Authentication cookies</strong> — used by our client portal to keep you logged in during your session. These are deleted when you log out or close your browser.</li>
+        <li><strong>Google Fonts</strong> — a third-party font service that may set a performance cookie. No personal data is collected through this.</li>
+      </ul>
+      <p>You can disable cookies in your browser settings. Note that disabling cookies will prevent the client portal from functioning correctly.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section" id="thirdparty">
+      <span class="section-num">08</span>
+      <h2>Third-Party <em>Services</em></h2>
+      <p>Our website and systems use the following third-party services. Each has its own privacy policy:</p>
+      <ul>
+        <li><strong>Supabase</strong> — database and authentication platform. Stores enquiry forms and client project data. <a href="https://supabase.com/privacy" target="_blank" rel="noopener" style="color:var(--gold);">Supabase Privacy Policy</a></li>
+        <li><strong>Netlify</strong> — website hosting platform. Processes basic web traffic. <a href="https://www.netlify.com/privacy/" target="_blank" rel="noopener" style="color:var(--gold);">Netlify Privacy Policy</a></li>
+        <li><strong>Google Fonts</strong> — font rendering service. No personal data collected.</li>
+        <li><strong>WhatsApp Business</strong> — direct client communication. Subject to Meta's privacy policy.</li>
+      </ul>
+      <p>We do not use Google Analytics, Facebook Pixel, or any advertising or retargeting platforms.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section" id="children">
+      <span class="section-num">09</span>
+      <h2>Children's <em>Privacy</em></h2>
+      <p>Our services are intended for adults and businesses. We do not knowingly collect personal information from children under the age of 18. If you believe we have inadvertently collected information from a minor, please contact us immediately and we will delete it promptly.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section" id="changes">
+      <span class="section-num">10</span>
+      <h2>Changes to This <em>Policy</em></h2>
+      <p>We may update this Privacy Policy from time to time as our services evolve. When we make significant changes, we will update the effective date at the top of this page.</p>
+      <p>We encourage you to review this policy periodically. Continued use of our website or services after any changes constitutes your acceptance of the updated policy.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section" id="contact">
+      <span class="section-num">11</span>
+      <h2>Contact <em>Us</em></h2>
+      <p>If you have any questions about this Privacy Policy, or wish to exercise your data rights, please contact us directly:</p>
+      <div class="contact-block">
+        <h4>M.A.G.K Groups — Data Enquiries</h4>
+        <div class="contact-row">
+          <span class="contact-row-icon">📧</span>
+          <span class="contact-row-text"><a href="mailto:m.a.g.kgroups@gmail.com">m.a.g.kgroups@gmail.com</a></span>
+        </div>
+        <div class="contact-row">
+          <span class="contact-row-icon">📱</span>
+          <span class="contact-row-text"><a href="tel:+250781545681">+250 781 545 681</a></span>
+        </div>
+        <div class="contact-row">
+          <span class="contact-row-icon">💬</span>
+          <span class="contact-row-text"><a href="https://wa.me/250781545681" target="_blank" rel="noopener">WhatsApp: +250 781 545 681</a></span>
+        </div>
+        <div class="contact-row">
+          <span class="contact-row-icon">📍</span>
+          <span class="contact-row-text">Nyagatare, Eastern Province, Rwanda</span>
+        </div>
+      </div>
+      <p style="margin-top:20px;">We aim to respond to all data-related enquiries within <strong style="color:var(--white);">30 days</strong>.</p>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">M.A.G.K<span>.</span> Groups</div>
+    <div class="footer-copy">
+      © 2025 M.A.G.K Groups Ltd. All rights reserved.<br>
+      RDB Registered · Nyagatare, Eastern Province, Rwanda
+    </div>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="index.html#contact">Contact</a>
+      <a href="portal.html">Client Portal</a>
+    </div>
+  </div>
+</footer>
+
+<!-- WhatsApp -->
+<a class="wa-float"
+   href="https://wa.me/250781545681?text=Hello%20M.A.G.K%20Groups%2C%20I%20have%20a%20question%20about%20your%20privacy%20policy."
+   target="_blank" rel="noopener noreferrer"
+   aria-label="Chat with M.A.G.K Groups on WhatsApp">
+  <div class="wa-btn">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  </div>
+</a>
+
+</body>
+</html>
