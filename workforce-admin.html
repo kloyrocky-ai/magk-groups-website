@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M.A.G.K Groups — Workforce Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{--black:#0A0A0A;--dark:#0F0F16;--dark2:#141420;--mid:#1A1A28;--panel:#1E1E2E;--gold:#C9A84C;--gold2:#E8C97A;--white:#F0EDE6;--muted:#7A7A8A;--border:rgba(201,168,76,0.15);--border2:rgba(255,255,255,0.06);--green:#1D6A40;--red:#C0392B;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit',sans-serif;background:var(--dark);color:var(--white);min-height:100vh;display:flex;}
+
+  /* Login */
+  #loginScreen{position:fixed;inset:0;background:var(--dark);display:flex;align-items:center;justify-content:center;z-index:1000;}
+  .login-box{background:var(--panel);border:1px solid var(--border);padding:48px;width:100%;max-width:400px;border-radius:4px;}
+  .login-logo{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;color:var(--white);}
+  .login-logo span{color:var(--gold);}
+  .login-sub{font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:28px;margin-top:4px;}
+  .login-box label{font-size:0.68rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:7px;}
+  .login-box input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border2);color:var(--white);font-family:'Outfit',sans-serif;font-size:0.9rem;padding:12px 16px;border-radius:2px;outline:none;margin-bottom:14px;transition:border-color 0.3s;}
+  .login-box input:focus{border-color:var(--gold);}
+  .login-btn{width:100%;background:var(--gold);color:var(--black);border:none;font-family:'Outfit',sans-serif;font-size:0.82rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:13px;cursor:pointer;border-radius:2px;transition:all 0.3s;}
+  .login-btn:hover{background:var(--gold2);}
+  .login-err{font-size:0.8rem;color:#e74c3c;margin-top:10px;text-align:center;display:none;}
+
+  /* Sidebar */
+  #sidebar{width:220px;background:var(--dark2);border-right:1px solid var(--border2);display:flex;flex-direction:column;flex-shrink:0;min-height:100vh;}
+  .sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid var(--border2);}
+  .sidebar-logo-text{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:var(--white);}
+  .sidebar-logo-text span{color:var(--gold);}
+  .sidebar-badge{font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);background:rgba(201,168,76,0.1);padding:3px 8px;border-radius:2px;margin-top:4px;display:inline-block;}
+  .sidebar-nav{padding:14px 0;flex:1;}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;font-size:0.82rem;font-weight:500;color:var(--muted);cursor:pointer;transition:all 0.2s;border-left:2px solid transparent;}
+  .nav-item:hover{color:var(--white);background:rgba(255,255,255,0.03);}
+  .nav-item.active{color:var(--gold);background:rgba(201,168,76,0.06);border-left-color:var(--gold);}
+  .nav-icon{font-size:1rem;width:20px;text-align:center;}
+  .nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:10px;}
+  .sidebar-divider{height:1px;background:var(--border2);margin:8px 20px;}
+  .sidebar-footer{padding:16px 20px;border-top:1px solid var(--border2);}
+  .back-link{display:block;text-align:center;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:8px;border:1px solid var(--border2);border-radius:2px;margin-bottom:8px;transition:all 0.3s;}
+  .back-link:hover{color:var(--gold);border-color:var(--border);}
+  .logout-btn{width:100%;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Outfit',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:8px;cursor:pointer;border-radius:2px;transition:all 0.3s;}
+  .logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+  /* Main */
+  #main{flex:1;overflow-y:auto;background:var(--dark);}
+  .page-header{padding:24px 30px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .page-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:var(--white);}
+  .page-title em{font-style:italic;color:var(--gold);}
+  .page-content{padding:24px 30px;}
+
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* Stats */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+  .stat-card{background:var(--panel);border:1px solid var(--border2);padding:20px 22px;border-radius:3px;position:relative;overflow:hidden;}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);}
+  .stat-num{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:600;color:var(--gold);line-height:1;display:block;}
+  .stat-label{font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-top:5px;}
+
+  /* Search & Filter Bar */
+  .filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
+  .search-input{flex:1;min-width:200px;background:rgba(255,255,255,0.04);border:1px solid var(--border2);color:var(--white);font-family:'Outfit',sans-serif;font-size:0.88rem;padding:10px 16px;border-radius:2px;outline:none;transition:border-color 0.3s;}
+  .search-input:focus{border-color:var(--gold);}
+  .search-input::placeholder{color:rgba(255,255,255,0.2);}
+  .filter-select{background:rgba(255,255,255,0.04);border:1px solid var(--border2);color:var(--white);font-family:'Outfit',sans-serif;font-size:0.82rem;padding:10px 14px;border-radius:2px;outline:none;cursor:pointer;}
+  .filter-select option{background:var(--panel);}
+
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;gap:6px;font-family:'Outfit',sans-serif;font-size:0.75rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:8px 16px;border-radius:2px;cursor:pointer;transition:all 0.2s;border:none;}
+  .btn-gold{background:var(--gold);color:var(--black);}
+  .btn-gold:hover{background:var(--gold2);}
+  .btn-outline{background:transparent;border:1px solid var(--border2);color:var(--muted);}
+  .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+  .btn-green{background:rgba(29,106,64,0.2);border:1px solid rgba(29,106,64,0.3);color:#52be80;}
+  .btn-red{background:transparent;border:1px solid rgba(192,57,43,0.3);color:var(--red);}
+  .btn-red:hover{background:rgba(192,57,43,0.1);}
+  .btn-sm{padding:5px 10px;font-size:0.68rem;}
+
+  /* Table */
+  .table-wrap{background:var(--panel);border:1px solid var(--border2);border-radius:3px;overflow:hidden;margin-bottom:20px;}
+  .table-header{padding:14px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;}
+  .table-title{font-size:0.8rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--white);}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{background:rgba(255,255,255,0.03);}
+  th{font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);padding:11px 14px;text-align:left;border-bottom:1px solid var(--border2);}
+  td{font-size:0.82rem;color:var(--white);padding:13px 14px;border-bottom:1px solid rgba(255,255,255,0.04);}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:rgba(255,255,255,0.02);}
+  .empty-row td{text-align:center;color:var(--muted);padding:40px;}
+
+  /* Skill tags */
+  .skill-tags{display:flex;flex-wrap:wrap;gap:4px;}
+  .skill-tag{font-size:0.6rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold);border:1px solid var(--border);padding:2px 8px;border-radius:1px;white-space:nowrap;}
+
+  /* Status badges */
+  .badge{display:inline-flex;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 9px;border-radius:2px;}
+  .badge-active{background:rgba(29,106,64,0.2);color:#52be80;}
+  .badge-inactive{background:rgba(255,255,255,0.05);color:var(--muted);}
+  .badge-blacklisted{background:rgba(192,57,43,0.15);color:#e74c3c;}
+  .badge-new{background:rgba(41,128,185,0.15);color:#5dade2;}
+  .badge-shortlisted{background:rgba(201,168,76,0.15);color:var(--gold);}
+  .badge-hired{background:rgba(29,106,64,0.2);color:#52be80;}
+  .badge-rejected{background:rgba(192,57,43,0.15);color:#e74c3c;}
+
+  /* Availability pills */
+  .avail-pill{font-size:0.65rem;font-weight:600;padding:3px 10px;border-radius:10px;}
+  .avail-immediate{background:rgba(29,106,64,0.2);color:#52be80;}
+  .avail-1week{background:rgba(201,168,76,0.15);color:var(--gold);}
+  .avail-2weeks,.avail-1month{background:rgba(41,128,185,0.15);color:#5dade2;}
+  .avail-unavailable{background:rgba(255,255,255,0.05);color:var(--muted);}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--panel);border:1px solid var(--border);border-radius:4px;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;}
+  .modal-head{padding:22px 26px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--panel);z-index:1;}
+  .modal-head h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:var(--white);}
+  .modal-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;transition:color 0.2s;}
+  .modal-close:hover{color:var(--white);}
+  .modal-body{padding:24px 26px;}
+  .modal-foot{padding:14px 26px;border-top:1px solid var(--border2);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:var(--panel);}
+  .field-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+  .field-group label{font-size:0.67rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
+  .field-group input,.field-group select,.field-group textarea{background:rgba(255,255,255,0.04);border:1px solid var(--border2);color:var(--white);font-family:'Outfit',sans-serif;font-size:0.88rem;padding:10px 14px;border-radius:2px;outline:none;width:100%;transition:border-color 0.3s;}
+  .field-group input:focus,.field-group select:focus,.field-group textarea:focus{border-color:var(--gold);}
+  .field-group select option{background:var(--panel);}
+  .field-group textarea{resize:vertical;min-height:80px;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  /* Worker detail view */
+  .detail-section{margin-bottom:20px;}
+  .detail-label{font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+  .detail-value{font-size:0.9rem;color:var(--white);line-height:1.5;}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+  .detail-block{background:rgba(255,255,255,0.03);border:1px solid var(--border2);padding:14px;border-radius:2px;}
+
+  /* Toast */
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#fff;padding:12px 20px;border-radius:3px;font-size:0.82rem;font-weight:600;z-index:9999;opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateY(0);}
+  .toast.error{background:var(--red);}
+
+  /* Skill filter chips */
+  .skill-filter-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+  .skill-filter-chip{font-size:0.7rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:5px 12px;border:1px solid var(--border2);border-radius:2px;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.2s;font-family:'Outfit',sans-serif;}
+  .skill-filter-chip:hover{border-color:var(--border);color:var(--white);}
+  .skill-filter-chip.active{background:rgba(201,168,76,0.12);border-color:var(--gold);color:var(--gold);}
+
+  /* Job postings */
+  .job-list{display:flex;flex-direction:column;gap:12px;}
+  .job-item{background:var(--panel);border:1px solid var(--border2);padding:20px 24px;border-radius:3px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;transition:border-color 0.3s;}
+  .job-item:hover{border-color:var(--border);}
+  .job-item-left{flex:1;}
+  .job-item-title{font-size:0.95rem;font-weight:600;color:var(--white);margin-bottom:4px;}
+  .job-item-meta{font-size:0.75rem;color:var(--muted);}
+  .job-item-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+  @media(max-width:768px){
+    #sidebar{display:none;}
+    .stats-row{grid-template-columns:1fr 1fr;}
+    .field-row{grid-template-columns:1fr;}
+    .detail-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<script>
+  const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
+
+<!-- Login -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">M.A.G.K<span>.</span></div>
+    <div class="login-sub">Workforce Intelligence</div>
+    <label>Email</label>
+    <input type="email" id="loginEmail" placeholder="admin@magkgroups.rw">
+    <label>Password</label>
+    <input type="password" id="loginPass" placeholder="••••••••">
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-err" id="loginErr">Invalid credentials.</div>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<div id="sidebar" style="display:none;">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-text">M.A.G.K<span>.</span></div>
+    <div class="sidebar-badge">Workforce</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="showView('overview')"><span class="nav-icon">📊</span> Overview</div>
+    <div class="nav-item" onclick="showView('workers')"><span class="nav-icon">👷</span> Workers <span class="nav-badge" id="newWorkerBadge" style="display:none">0</span></div>
+    <div class="nav-item" onclick="showView('jobs')"><span class="nav-icon">📋</span> Job Postings</div>
+    <div class="nav-item" onclick="showView('applications')"><span class="nav-icon">📨</span> Applications <span class="nav-badge" id="newAppBadge" style="display:none">0</span></div>
+    <div class="sidebar-divider"></div>
+    <a class="nav-item" href="admin.html" style="text-decoration:none;color:var(--muted);">
+      <span class="nav-icon">🏠</span> Main Dashboard
+      <span style="margin-left:auto;font-size:0.6rem;color:var(--gold);font-weight:700;">↗</span>
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="workforce.html" target="_blank" class="back-link">View Public Page ↗</a>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div id="main" style="display:none;">
+
+  <!-- Overview -->
+  <div class="view active" id="view-overview">
+    <div class="page-header">
+      <h1 class="page-title">Labour Force <em>Intelligence</em></h1>
+      <button class="btn btn-gold" onclick="loadAll()">↻ Refresh</button>
+    </div>
+    <div class="page-content">
+      <div class="stats-row">
+        <div class="stat-card"><span class="stat-num" id="stat-total">—</span><div class="stat-label">Total Workers</div></div>
+        <div class="stat-card"><span class="stat-num" id="stat-avail">—</span><div class="stat-label">Available Now</div></div>
+        <div class="stat-card"><span class="stat-num" id="stat-jobs">—</span><div class="stat-label">Active Jobs Posted</div></div>
+        <div class="stat-card"><span class="stat-num" id="stat-apps">—</span><div class="stat-label">New Applications</div></div>
+      </div>
+
+      <!-- Skills breakdown chart -->
+      <div style="background:var(--panel);border:1px solid var(--border2);border-radius:3px;padding:22px;margin-bottom:20px;">
+        <div style="font-size:0.78rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;">Top Skills in Your Network</div>
+        <div id="skillsChart"></div>
+      </div>
+
+      <!-- Recent registrations -->
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">Recent Registrations</div><button class="btn btn-outline btn-sm" onclick="showView('workers')">View All</button></div>
+        <table><thead><tr><th>Name</th><th>Location</th><th>Top Skills</th><th>Availability</th><th>Registered</th></tr></thead>
+        <tbody id="recentWorkersTable"><tr class="empty-row"><td colspan="5">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Workers -->
+  <div class="view" id="view-workers">
+    <div class="page-header">
+      <h1 class="page-title">Worker <em>Database</em></h1>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="exportWorkers()">⬇ Export CSV</button>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="filter-bar">
+        <input type="text" class="search-input" id="workerSearch" placeholder="Search by name, location, or phone..." oninput="filterWorkers()">
+        <select class="filter-select" id="availFilter" onchange="filterWorkers()">
+          <option value="">All Availability</option>
+          <option value="immediate">Available Now</option>
+          <option value="1week">Within 1 Week</option>
+          <option value="2weeks">Within 2 Weeks</option>
+          <option value="unavailable">Unavailable</option>
+        </select>
+        <select class="filter-select" id="statusFilter" onchange="filterWorkers()">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="blacklisted">Blacklisted</option>
+        </select>
+      </div>
+
+      <!-- Skill filter chips -->
+      <div class="skill-filter-wrap" id="skillFilterChips"></div>
+
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">All Workers</div>
+          <span style="font-size:0.72rem;color:var(--muted);" id="workerCount"></span>
+        </div>
+        <table>
+          <thead><tr><th>Name</th><th>Phone</th><th>Location</th><th>Skills</th><th>Experience</th><th>Availability</th><th>Rate/Day</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="workerTable"><tr class="empty-row"><td colspan="9">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jobs -->
+  <div class="view" id="view-jobs">
+    <div class="page-header">
+      <h1 class="page-title">Job <em>Postings</em></h1>
+      <button class="btn btn-gold" onclick="openJobModal()">+ Post New Job</button>
+    </div>
+    <div class="page-content">
+      <div class="job-list" id="jobList"><div style="color:var(--muted);text-align:center;padding:40px;">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- Applications -->
+  <div class="view" id="view-applications">
+    <div class="page-header">
+      <h1 class="page-title">Job <em>Applications</em></h1>
+    </div>
+    <div class="page-content">
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">All Applications</div></div>
+        <table><thead><tr><th>Applicant</th><th>Phone</th><th>Job Applied For</th><th>Message</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+        <tbody id="appTable"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Worker Detail Modal -->
+<div class="modal-overlay" id="workerModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Worker Profile</h3><button class="modal-close" onclick="closeModal('workerModal')">✕</button></div>
+    <div class="modal-body" id="workerModalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('workerModal')">Close</button>
+      <button class="btn btn-gold" id="workerSaveBtn" onclick="saveWorkerUpdate()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Post Job Modal -->
+<div class="modal-overlay" id="jobModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Post New Job</h3><button class="modal-close" onclick="closeModal('jobModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="field-group"><label>Job Title *</label><input id="jTitle" type="text" placeholder="e.g. Experienced Tiler Needed — Nyagatare"></div>
+      <div class="field-row">
+        <div class="field-group"><label>Job Type</label>
+          <select id="jType">
+            <option value="contract">Contract / Project</option>
+            <option value="daily">Daily Wage</option>
+            <option value="fulltime">Full-time</option>
+          </select>
+        </div>
+        <div class="field-group"><label>Location</label><input id="jLocation" type="text" placeholder="e.g. Karangazi, Nyagatare"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Rate / Pay</label><input id="jRate" type="text" placeholder="e.g. RWF 6,000/day"></div>
+        <div class="field-group"><label>Start Date</label><input id="jStart" type="date"></div>
+      </div>
+      <div class="field-group"><label>Duration</label><input id="jDuration" type="text" placeholder="e.g. 2 weeks, 1 month"></div>
+      <div class="field-group"><label>Job Description</label><textarea id="jDesc" placeholder="Describe the work, requirements, and what to expect..."></textarea></div>
+      <div class="field-group">
+        <label>Required Skills (comma separated)</label>
+        <input id="jSkills" type="text" placeholder="e.g. Tiler (Floor & Wall), Plasterer / Renderer">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('jobModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveJob()">Post Job</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let allWorkers = [];
+  let currentWorkerId = null;
+  let activeSkillFilter = null;
+
+  // ── Auth ──────────────────────────────────────────────────────
+  async function doLogin() {
+    const { error } = await db.auth.signInWithPassword({
+      email: document.getElementById('loginEmail').value,
+      password: document.getElementById('loginPass').value
+    });
+    if (error) { document.getElementById('loginErr').style.display = 'block'; return; }
+    showApp();
+  }
+  async function doLogout() { await db.auth.signOut(); location.reload(); }
+  async function showApp() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('sidebar').style.display = 'flex';
+    document.getElementById('main').style.display = 'block';
+    loadAll();
+  }
+  (async () => {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) showApp();
+  })();
+  document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('loginScreen').style.display !== 'none') doLogin(); });
+
+  // ── Navigation ────────────────────────────────────────────────
+  function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    event?.currentTarget?.classList.add('active');
+    if (name === 'workers') loadWorkers();
+    if (name === 'jobs') loadJobs();
+    if (name === 'applications') loadApplications();
+    if (name === 'overview') loadOverview();
+  }
+
+  // ── Load All ──────────────────────────────────────────────────
+  async function loadAll() {
+    await loadOverview();
+    loadBadges();
+  }
+
+  async function loadBadges() {
+    const [{ data: newW }, { data: newA }] = await Promise.all([
+      db.from('workforce').select('id').eq('status','active').gte('created_at', new Date(Date.now()-7*86400000).toISOString()),
+      db.from('job_applications').select('id').eq('status','new')
+    ]);
+    const wb = document.getElementById('newWorkerBadge');
+    const ab = document.getElementById('newAppBadge');
+    if (newW?.length > 0) { wb.textContent = newW.length; wb.style.display = 'inline-block'; }
+    if (newA?.length > 0) { ab.textContent = newA.length; ab.style.display = 'inline-block'; }
+  }
+
+  // ── Overview ──────────────────────────────────────────────────
+  async function loadOverview() {
+    const [{ data: workers }, { data: jobs }, { data: apps }] = await Promise.all([
+      db.from('workforce').select('*'),
+      db.from('job_postings').select('*').eq('is_active', true),
+      db.from('job_applications').select('*').eq('status', 'new')
+    ]);
+
+    const ws = workers || [];
+    const available = ws.filter(w => w.availability === 'immediate' || w.availability === '1week');
+
+    document.getElementById('stat-total').textContent = ws.length;
+    document.getElementById('stat-avail').textContent = available.length;
+    document.getElementById('stat-jobs').textContent = (jobs || []).length;
+    document.getElementById('stat-apps').textContent = (apps || []).length;
+
+    // Skills chart
+    const skillCount = {};
+    ws.forEach(w => (w.skills || []).forEach(s => { skillCount[s] = (skillCount[s] || 0) + 1; }));
+    const topSkills = Object.entries(skillCount).sort((a,b) => b[1]-a[1]).slice(0, 10);
+    const maxVal = Math.max(...topSkills.map(s => s[1]), 1);
+    document.getElementById('skillsChart').innerHTML = topSkills.length
+      ? topSkills.map(([skill, count]) => `
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+            <span style="font-size:0.75rem;color:var(--white);min-width:200px;">${skill}</span>
+            <div style="flex:1;background:rgba(255,255,255,0.05);height:8px;border-radius:2px;overflow:hidden;">
+              <div style="height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:${(count/maxVal)*100}%;border-radius:2px;"></div>
+            </div>
+            <span style="font-size:0.75rem;color:var(--gold);min-width:24px;text-align:right;">${count}</span>
+          </div>`).join('')
+      : '<div style="color:var(--muted);font-size:0.82rem;">No workers registered yet.</div>';
+
+    // Recent registrations
+    const recent = ws.sort((a,b) => new Date(b.created_at)-new Date(a.created_at)).slice(0,8);
+    document.getElementById('recentWorkersTable').innerHTML = recent.length
+      ? recent.map(w => `
+          <tr onclick="openWorkerModal('${w.id}')" style="cursor:pointer;">
+            <td><strong>${w.name}</strong></td>
+            <td style="color:var(--muted);font-size:0.78rem;">${w.location || '—'}</td>
+            <td><div class="skill-tags">${(w.skills||[]).slice(0,2).map(s=>`<span class="skill-tag">${s}</span>`).join('')}${(w.skills||[]).length>2?`<span style="font-size:0.65rem;color:var(--muted);">+${w.skills.length-2}</span>`:''}</div></td>
+            <td><span class="avail-pill avail-${w.availability}">${w.availability||'—'}</span></td>
+            <td style="color:var(--muted);font-size:0.72rem;">${formatDate(w.created_at)}</td>
+          </tr>`).join('')
+      : '<tr class="empty-row"><td colspan="5">No workers registered yet.</td></tr>';
+
+    allWorkers = ws;
+    buildSkillFilterChips(ws);
+  }
+
+  // ── Workers ───────────────────────────────────────────────────
+  function buildSkillFilterChips(workers) {
+    const skills = {};
+    workers.forEach(w => (w.skills||[]).forEach(s => { skills[s] = (skills[s]||0)+1; }));
+    const sorted = Object.entries(skills).sort((a,b)=>b[1]-a[1]).slice(0,15);
+    document.getElementById('skillFilterChips').innerHTML = sorted.map(([s,n]) =>
+      `<button class="skill-filter-chip${activeSkillFilter===s?' active':''}" onclick="setSkillFilter('${s}', this)">${s} (${n})</button>`
+    ).join('');
+  }
+
+  function setSkillFilter(skill, btn) {
+    if (activeSkillFilter === skill) {
+      activeSkillFilter = null;
+      document.querySelectorAll('.skill-filter-chip').forEach(c => c.classList.remove('active'));
+    } else {
+      activeSkillFilter = skill;
+      document.querySelectorAll('.skill-filter-chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    renderWorkerTable(getFilteredWorkers());
+  }
+
+  async function loadWorkers() {
+    const { data } = await db.from('workforce').select('*').order('created_at', { ascending: false });
+    allWorkers = data || [];
+    buildSkillFilterChips(allWorkers);
+    renderWorkerTable(allWorkers);
+  }
+
+  function getFilteredWorkers() {
+    const search = document.getElementById('workerSearch')?.value.toLowerCase() || '';
+    const avail  = document.getElementById('availFilter')?.value || '';
+    const status = document.getElementById('statusFilter')?.value || '';
+    return allWorkers.filter(w => {
+      const matchSearch = !search || w.name?.toLowerCase().includes(search) || w.phone?.includes(search) || w.location?.toLowerCase().includes(search);
+      const matchAvail  = !avail  || w.availability === avail;
+      const matchStatus = !status || w.status === status;
+      const matchSkill  = !activeSkillFilter || (w.skills||[]).includes(activeSkillFilter);
+      return matchSearch && matchAvail && matchStatus && matchSkill;
+    });
+  }
+
+  function filterWorkers() { renderWorkerTable(getFilteredWorkers()); }
+
+  function renderWorkerTable(workers) {
+    document.getElementById('workerCount').textContent = workers.length + ' workers';
+    document.getElementById('workerTable').innerHTML = workers.length
+      ? workers.map(w => `
+          <tr>
+            <td><strong style="cursor:pointer;color:var(--gold);" onclick="openWorkerModal('${w.id}')">${w.name}</strong></td>
+            <td style="color:var(--muted);font-size:0.78rem;">${w.phone}</td>
+            <td style="color:var(--muted);font-size:0.78rem;">${w.location||'—'}</td>
+            <td><div class="skill-tags">${(w.skills||[]).slice(0,2).map(s=>`<span class="skill-tag">${s}</span>`).join('')}${(w.skills||[]).length>2?`<span style="font-size:0.65rem;color:var(--muted);padding:2px 4px;">+${w.skills.length-2} more</span>`:''}</div></td>
+            <td style="color:var(--muted);font-size:0.78rem;">${w.experience||'—'}</td>
+            <td><span class="avail-pill avail-${w.availability}">${w.availability||'—'}</span></td>
+            <td style="color:var(--muted);font-size:0.78rem;">${w.daily_rate||'—'}</td>
+            <td><span class="badge badge-${w.status||'active'}">${w.status||'active'}</span></td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="openWorkerModal('${w.id}')">View</button>
+              ${w.file_url ? `<a href="${w.file_url}" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none;margin-left:4px;">📎 File</a>` : ''}
+            </td>
+          </tr>`).join('')
+      : '<tr class="empty-row"><td colspan="9">No workers match your filters.</td></tr>';
+  }
+
+  async function openWorkerModal(id) {
+    currentWorkerId = id;
+    const w = allWorkers.find(x => x.id === id);
+    if (!w) return;
+    document.getElementById('workerModalBody').innerHTML = `
+      <div class="detail-grid">
+        <div class="detail-block"><div class="detail-label">Name</div><div class="detail-value">${w.name}</div></div>
+        <div class="detail-block"><div class="detail-label">Phone</div><div class="detail-value"><a href="tel:${w.phone}" style="color:var(--gold);">${w.phone}</a></div></div>
+        <div class="detail-block"><div class="detail-label">Location</div><div class="detail-value">${w.location||'—'}</div></div>
+        <div class="detail-block"><div class="detail-label">Experience</div><div class="detail-value">${w.experience||'—'}</div></div>
+        <div class="detail-block"><div class="detail-label">Availability</div><div class="detail-value"><span class="avail-pill avail-${w.availability}">${w.availability||'—'}</span></div></div>
+        <div class="detail-block"><div class="detail-label">Work Type</div><div class="detail-value">${w.work_type||'—'}</div></div>
+        <div class="detail-block"><div class="detail-label">Daily Rate</div><div class="detail-value">${w.daily_rate||'Not specified'}</div></div>
+        <div class="detail-block"><div class="detail-label">Times Hired</div><div class="detail-value">${w.times_hired||0}</div></div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-label">Skills (${(w.skills||[]).length})</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">${(w.skills||[]).map(s=>`<span class="skill-tag">${s}</span>`).join('')||'None listed'}</div>
+      </div>
+      ${w.bio ? `<div class="detail-section"><div class="detail-label">About</div><div class="detail-value" style="color:var(--muted);line-height:1.7;">${w.bio}</div></div>` : ''}
+      ${w.file_url ? `<div class="detail-section"><div class="detail-label">Uploaded File</div><a href="${w.file_url}" target="_blank" style="color:var(--gold);font-size:0.85rem;display:inline-flex;align-items:center;gap:6px;margin-top:6px;">📎 View / Download File</a></div>` : ''}
+      <hr style="border:none;border-top:1px solid var(--border2);margin:20px 0;">
+      <div class="field-row">
+        <div class="field-group"><label>Update Status</label>
+          <select id="wStatus">
+            <option value="active" ${w.status==='active'?'selected':''}>Active</option>
+            <option value="inactive" ${w.status==='inactive'?'selected':''}>Inactive</option>
+            <option value="blacklisted" ${w.status==='blacklisted'?'selected':''}>Blacklisted</option>
+          </select>
+        </div>
+        <div class="field-group"><label>Times Hired</label>
+          <input type="number" id="wHired" value="${w.times_hired||0}" min="0">
+        </div>
+      </div>
+      <div class="field-group"><label>Admin Notes (private)</label>
+        <textarea id="wNotes" placeholder="Your private notes about this worker...">${w.admin_notes||''}</textarea>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <a href="https://wa.me/${w.phone?.replace(/\D/g,'')}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;padding:9px 16px;border-radius:2px;text-decoration:none;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">💬 WhatsApp</a>
+        <a href="tel:${w.phone}" style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border2);color:var(--muted);padding:9px 16px;border-radius:2px;text-decoration:none;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">📞 Call</a>
+      </div>
+    `;
+    openModal('workerModal');
+  }
+
+  async function saveWorkerUpdate() {
+    const { error } = await db.from('workforce').update({
+      status: document.getElementById('wStatus').value,
+      times_hired: parseInt(document.getElementById('wHired').value) || 0,
+      admin_notes: document.getElementById('wNotes').value,
+    }).eq('id', currentWorkerId);
+    if (error) { showToast('Error saving', true); return; }
+    closeModal('workerModal');
+    showToast('Worker updated');
+    loadWorkers();
+  }
+
+  // ── Export CSV ────────────────────────────────────────────────
+  function exportWorkers() {
+    const workers = getFilteredWorkers();
+    if (!workers.length) { showToast('No workers to export', true); return; }
+    const headers = ['Name','Phone','National ID','Age','Location','Experience','Availability','Work Type','Skills','Daily Rate','Status','Bio','Registered'];
+    const rows = workers.map(w => [
+      w.name, w.phone, w.national_id||'', w.age||'', w.location||'',
+      w.experience||'', w.availability||'', w.work_type||'',
+      (w.skills||[]).join(' | '), w.daily_rate||'', w.status||'',
+      (w.bio||'').replace(/,/g,';'), formatDate(w.created_at)
+    ].map(v => `"${v}"`).join(','));
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    a.download = `MAGK_Workforce_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+    showToast('CSV downloaded');
+  }
+
+  // ── Jobs ──────────────────────────────────────────────────────
+  async function loadJobs() {
+    const { data } = await db.from('job_postings').select('*').order('created_at', { ascending: false });
+    const jobs = data || [];
+    const list = document.getElementById('jobList');
+    if (!jobs.length) { list.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px;">No jobs posted yet. Click "+ Post New Job" to add your first opening.</div>'; return; }
+    list.innerHTML = jobs.map(j => `
+      <div class="job-item">
+        <div class="job-item-left">
+          <div class="job-item-title">${j.title} <span class="badge badge-${j.is_active?'active':'inactive'}" style="margin-left:8px;">${j.is_active?'Active':'Closed'}</span></div>
+          <div class="job-item-meta">${j.job_type} · ${j.location||'—'} · ${j.rate||'Rate not set'} · Posted ${formatDate(j.created_at)}</div>
+        </div>
+        <div class="job-item-actions">
+          <button class="btn btn-outline btn-sm" onclick="toggleJob('${j.id}',${j.is_active})">${j.is_active?'Close Job':'Re-open'}</button>
+          <button class="btn btn-red btn-sm" onclick="deleteJob('${j.id}')">Delete</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function openJobModal() {
+    ['jTitle','jLocation','jRate','jDuration','jDesc','jSkills'].forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('jStart').value = '';
+    openModal('jobModal');
+  }
+
+  async function saveJob() {
+    const title = document.getElementById('jTitle').value.trim();
+    if (!title) { showToast('Job title is required', true); return; }
+    const skillsRaw = document.getElementById('jSkills').value;
+    const skills = skillsRaw ? skillsRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+    const { error } = await db.from('job_postings').insert([{
+      title,
+      job_type:       document.getElementById('jType').value,
+      location:       document.getElementById('jLocation').value,
+      rate:           document.getElementById('jRate').value,
+      start_date:     document.getElementById('jStart').value || null,
+      duration:       document.getElementById('jDuration').value,
+      description:    document.getElementById('jDesc').value,
+      required_skills: skills,
+      is_active:      true,
+    }]);
+    if (error) { showToast('Error: ' + error.message, true); return; }
+    closeModal('jobModal');
+    showToast('Job posted — visible on public page');
+    loadJobs();
+  }
+
+  async function toggleJob(id, isActive) {
+    await db.from('job_postings').update({ is_active: !isActive }).eq('id', id);
+    showToast(isActive ? 'Job closed' : 'Job re-opened');
+    loadJobs();
+  }
+
+  async function deleteJob(id) {
+    if (!confirm('Delete this job posting? Applications will also be deleted.')) return;
+    await db.from('job_postings').delete().eq('id', id);
+    showToast('Job deleted');
+    loadJobs();
+  }
+
+  // ── Applications ──────────────────────────────────────────────
+  async function loadApplications() {
+    const { data } = await db.from('job_applications').select('*, job_postings(title)').order('created_at', { ascending: false });
+    const apps = data || [];
+    document.getElementById('appTable').innerHTML = apps.length
+      ? apps.map(a => `
+          <tr>
+            <td><strong>${a.name}</strong></td>
+            <td style="color:var(--muted);">${a.phone}</td>
+            <td style="color:var(--muted);font-size:0.78rem;">${a.job_postings?.title||'—'}</td>
+            <td style="color:var(--muted);font-size:0.78rem;max-width:200px;">${(a.message||'—').substring(0,80)}${(a.message||'').length>80?'...':''}</td>
+            <td><span class="badge badge-${a.status}">${a.status}</span></td>
+            <td style="color:var(--muted);font-size:0.72rem;">${formatDate(a.created_at)}</td>
+            <td style="display:flex;gap:6px;">
+              <button class="btn btn-outline btn-sm" onclick="updateAppStatus('${a.id}','shortlisted')">Shortlist</button>
+              <button class="btn btn-outline btn-sm" onclick="updateAppStatus('${a.id}','hired')">Hire</button>
+              <a href="https://wa.me/${a.phone?.replace(/\D/g,'')}" target="_blank" class="btn btn-green btn-sm" style="text-decoration:none;">WhatsApp</a>
+            </td>
+          </tr>`).join('')
+      : '<tr class="empty-row"><td colspan="7">No applications yet.</td></tr>';
+  }
+
+  async function updateAppStatus(id, status) {
+    await db.from('job_applications').update({ status }).eq('id', id);
+    showToast('Application updated to: ' + status);
+    loadApplications();
+    loadBadges();
+  }
+
+  // ── Utilities ─────────────────────────────────────────────────
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  function formatDate(d) { return new Date(d).toLocaleDateString('en-RW', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  function showToast(msg, err=false) {
+    const t = document.getElementById('toast');
+    t.textContent = err ? '✕ ' + msg : '✓ ' + msg;
+    t.className = 'toast show' + (err ? ' error' : '');
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+  document.querySelectorAll('.modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+  });
+</script>
+</body>
+</html>
