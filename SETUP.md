@@ -40,6 +40,19 @@ magk-site/
 - Click **"Run"** (green button)
 - You should see: "Success. No rows returned"
 
+### Create your storage buckets (required for photo/file uploads):
+- Go to **Storage** in the Supabase sidebar
+- Click **"New bucket"**
+  - Name: `project-media` (must match exactly, lowercase)
+  - Toggle **Public bucket** ON
+  - Click **Create bucket**
+- Click **"New bucket"** again
+  - Name: `worker-files` (must match exactly, lowercase)
+  - Toggle **Public bucket** ON
+  - Click **Create bucket**
+
+Without these two buckets, `uploads.html` (project photos/documents) and `workforce.html` (worker CVs/IDs) will fail silently when someone tries to upload a file.
+
 ### Create your admin account:
 - Go to **Authentication → Users**
 - Click **"Invite User"** or **"Add User"**
@@ -91,19 +104,19 @@ Replace `YOURUSERNAME` with your actual GitHub username.
 
 ---
 
-## STEP 4 — DEPLOY ON NETLIFY (Free)
+## STEP 4 — DEPLOY ON CLOUDFLARE (Free, unlimited bandwidth)
 
-1. Go to **netlify.com** → Sign up (use your GitHub account)
-2. Click **"Add new site" → "Import an existing project"**
-3. Choose **GitHub**
-4. Select your `magk-groups-website` repository
-5. Leave all settings as default
-6. Click **"Deploy site"**
+Your site is currently deployed as a **Cloudflare Worker with static assets** at:
+`https://magk-groups.kloyrocky.workers.dev`
 
-Wait 1-2 minutes. Netlify gives you a live URL like:
-`https://random-name-12345.netlify.app`
+To redeploy after making changes:
+1. Go to **dash.cloudflare.com** → Workers & Pages → your `magk-groups` service
+2. Upload the updated files (via your connected Git repo triggering a new build, or a manual upload depending on how the service is connected)
+3. Wait for the deployment to finish — Cloudflare shows build status in the dashboard
 
-**Your site is now LIVE.**
+**Why Cloudflare instead of Netlify:** Netlify's free tier caps out at 100GB of bandwidth a month. A traffic spike hit that cap once already and took the site offline. Cloudflare's free tier has no bandwidth cap (subject to a general fair-use policy that a normal business site will never come close to), so this shouldn't happen again.
+
+**About the `_headers` file:** it sets security headers (clickjacking protection, content-type sniffing protection, etc.) and image caching. Cloudflare Workers with static assets reads this automatically — but this depends on your project being set up with the modern "Workers Static Assets" method (an `[assets]` block in a `wrangler.toml` or `wrangler.jsonc` file) rather than the older, deprecated "Workers Sites." If you're not sure which one you're on, check whether a `wrangler.toml`/`wrangler.jsonc` exists in your project with an `[assets]` section — if it does, `_headers` will work as-is.
 
 ---
 
@@ -112,11 +125,11 @@ Wait 1-2 minutes. Netlify gives you a live URL like:
 1. **Test contact form:** Go to your live URL → Fill form → Submit
    - Check Supabase → Table Editor → enquiries → you should see the submission
 
-2. **Test admin dashboard:** Go to `your-url.netlify.app/admin.html`
+2. **Test admin dashboard:** Go to `https://magk-groups.kloyrocky.workers.dev/admin.html`
    - Login with your admin email and password
    - You should see the submitted enquiry
 
-3. **Test client portal:** Go to `your-url.netlify.app/portal.html`
+3. **Test client portal:** Go to `https://magk-groups.kloyrocky.workers.dev/portal.html`
    - Enter any email → click send link
    - Check that email for login link
 
@@ -125,16 +138,16 @@ Wait 1-2 minutes. Netlify gives you a live URL like:
 ## STEP 6 — GET A REAL DOMAIN (Optional, ~$15/year)
 
 1. Go to **ricta.org.rw** for `.rw` domain (recommended: `magkgroups.rw`)
-2. Or use **namecheap.com** for `.com` ($10-15/year)
-3. In Netlify: **Site Settings → Domain management → Add custom domain**
-4. Follow Netlify's DNS instructions
+2. Or use **namecheap.com** for `.com` ($10-15/year) — note: this is the step that was skipped for `magkgroups.com` due to the hosting fee; a domain purchase itself is separate from hosting and is usually much cheaper (the current site is hosted for free either way)
+3. In Cloudflare: **Workers & Pages → your service → Settings → Domains & Routes → Add custom domain**
+4. Follow Cloudflare's DNS instructions
 
 ---
 
 ## HOW TO USE THE ADMIN DASHBOARD
 
 ### Every time you get an enquiry:
-1. Go to `your-url.netlify.app/admin.html`
+1. Go to `https://magk-groups.kloyrocky.workers.dev/admin.html`
 2. Login with your email + password
 3. Click **Enquiries** in the left sidebar
 4. Click **"Manage"** on any enquiry
@@ -172,7 +185,7 @@ Wait 1-2 minutes. Netlify gives you a live URL like:
 ## MONTHLY MAINTENANCE (5 minutes)
 
 - Log into Supabase → check database is healthy (free tier: 500MB limit)
-- Log into Netlify → check site is still live
+- Log into Cloudflare dashboard → check the Worker is still deployed and healthy
 - Log into admin dashboard → review all enquiries from the month
 - Update project progress for all active projects
 
@@ -183,7 +196,7 @@ Wait 1-2 minutes. Netlify gives you a live URL like:
 | Item | Cost |
 |------|------|
 | Supabase (backend + database) | FREE up to 50,000 rows |
-| Netlify (hosting) | FREE up to 100GB bandwidth |
+| Cloudflare (hosting) | FREE, no bandwidth cap |
 | GitHub (code repository) | FREE |
 | Domain name (.rw) | ~RWF 15,000/year |
 | **Total running cost** | **~RWF 15,000/year or $0 without domain** |
@@ -205,7 +218,7 @@ Wait 1-2 minutes. Netlify gives you a live URL like:
 ## CONTACTS FOR HELP
 
 - Supabase docs: docs.supabase.com
-- Netlify docs: docs.netlify.com  
+- Cloudflare Workers docs: developers.cloudflare.com/workers  
 - GitHub docs: docs.github.com
 
 ---

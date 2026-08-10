@@ -191,6 +191,10 @@
       <span class="nav-icon">📁</span> Media &amp; Files
       <span style="margin-left:auto;font-size:0.6rem;color:var(--gold);font-weight:700;letter-spacing:0.08em;">OPEN ↗</span>
     </a>
+    <a class="nav-item" href="workforce-admin.html" style="text-decoration:none;" onclick="">
+      <span class="nav-icon">👷</span> Workforce &amp; Jobs
+      <span style="margin-left:auto;font-size:0.6rem;color:var(--gold);font-weight:700;letter-spacing:0.08em;">OPEN ↗</span>
+    </a>
   </nav>
   <div class="sidebar-footer">
     <button class="logout-btn" onclick="doLogout()">Sign Out</button>
@@ -527,7 +531,7 @@ async function loadDashboard() {
   // Recent enquiries table
   const recent = enqs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 8);
   document.getElementById('recentEnqTable').innerHTML = recent.length ? recent.map(e =>
-    `<tr><td><strong>${e.name}</strong></td><td style="color:var(--muted);font-size:0.8rem;">${e.service || '—'}</td><td style="color:var(--muted);font-size:0.8rem;">${e.location || '—'}</td><td><span class="badge badge-${e.status}">${e.status}</span></td><td style="color:var(--muted);font-size:0.78rem;">${formatDate(e.created_at)}</td></tr>`
+    `<tr><td><strong>${escapeHtml(e.name)}</strong></td><td style="color:var(--muted);font-size:0.8rem;">${escapeHtml(e.service) || '—'}</td><td style="color:var(--muted);font-size:0.8rem;">${escapeHtml(e.location) || '—'}</td><td><span class="badge badge-${escapeHtml(e.status)}">${escapeHtml(e.status)}</span></td><td style="color:var(--muted);font-size:0.78rem;">${formatDate(e.created_at)}</td></tr>`
   ).join('') : '<tr class="empty-row"><td colspan="5">No enquiries yet</td></tr>';
 }
 
@@ -541,12 +545,12 @@ async function loadEnquiries() {
   document.getElementById('enqCount').textContent = enqs.length + ' records';
   document.getElementById('enqTable').innerHTML = enqs.length ? enqs.map(e =>
     `<tr>
-      <td><strong>${e.name}</strong></td>
-      <td style="color:var(--muted);">${e.phone}</td>
-      <td style="color:var(--muted);font-size:0.8rem;">${e.service || '—'}</td>
-      <td style="color:var(--muted);font-size:0.8rem;">${e.location || '—'}</td>
-      <td><span class="badge badge-${e.status}">${e.status}</span></td>
-      <td><span class="badge badge-${e.priority === 'high' ? 'on_hold' : e.priority === 'low' ? 'closed' : 'planning'}">${e.priority}</span></td>
+      <td><strong>${escapeHtml(e.name)}</strong></td>
+      <td style="color:var(--muted);">${escapeHtml(e.phone)}</td>
+      <td style="color:var(--muted);font-size:0.8rem;">${escapeHtml(e.service) || '—'}</td>
+      <td style="color:var(--muted);font-size:0.8rem;">${escapeHtml(e.location) || '—'}</td>
+      <td><span class="badge badge-${escapeHtml(e.status)}">${escapeHtml(e.status)}</span></td>
+      <td><span class="badge badge-${e.priority === 'high' ? 'on_hold' : e.priority === 'low' ? 'closed' : 'planning'}">${escapeHtml(e.priority)}</span></td>
       <td style="color:var(--muted);font-size:0.78rem;">${formatDate(e.created_at)}</td>
       <td><button class="btn btn-outline btn-sm" onclick="openEnqModal('${e.id}')">Manage</button></td>
     </tr>`
@@ -558,11 +562,11 @@ async function openEnqModal(id) {
   if (!e) return;
   currentEnqId = id;
   document.getElementById('enqModalBody').innerHTML = `
-    <div class="detail-block"><div class="detail-label">Name</div><div class="detail-value">${e.name}</div></div>
-    <div class="detail-block"><div class="detail-label">Phone</div><div class="detail-value">${e.phone}</div></div>
-    <div class="detail-block"><div class="detail-label">Service Requested</div><div class="detail-value">${e.service || '—'}</div></div>
-    <div class="detail-block"><div class="detail-label">Project Location</div><div class="detail-value">${e.location || '—'}</div></div>
-    <div class="detail-block"><div class="detail-label">Description</div><div class="detail-value" style="color:var(--muted);">${e.description || '—'}</div></div>
+    <div class="detail-block"><div class="detail-label">Name</div><div class="detail-value">${escapeHtml(e.name)}</div></div>
+    <div class="detail-block"><div class="detail-label">Phone</div><div class="detail-value">${escapeHtml(e.phone)}</div></div>
+    <div class="detail-block"><div class="detail-label">Service Requested</div><div class="detail-value">${escapeHtml(e.service) || '—'}</div></div>
+    <div class="detail-block"><div class="detail-label">Project Location</div><div class="detail-value">${escapeHtml(e.location) || '—'}</div></div>
+    <div class="detail-block"><div class="detail-label">Description</div><div class="detail-value" style="color:var(--muted);">${escapeHtml(e.description) || '—'}</div></div>
     <div class="detail-block"><div class="detail-label">Submitted</div><div class="detail-value">${formatDate(e.created_at)}</div></div>
     <div class="field-row">
       <div class="field-group"><label>Status</label>
@@ -582,7 +586,7 @@ async function openEnqModal(id) {
         </select>
       </div>
     </div>
-    <div class="field-group"><label>Admin Notes (private)</label><textarea id="eNotes" placeholder="Your private notes about this lead...">${e.admin_notes || ''}</textarea></div>
+    <div class="field-group"><label>Admin Notes (private)</label><textarea id="eNotes" placeholder="Your private notes about this lead...">${escapeHtml(e.admin_notes)}</textarea></div>
   `;
   openModal('enqModal');
 }
@@ -606,9 +610,9 @@ async function loadClients() {
   const clients = data || [];
   document.getElementById('clientTable').innerHTML = clients.length ? clients.map(c =>
     `<tr>
-      <td><strong>${c.name}</strong></td>
-      <td style="color:var(--muted);font-size:0.82rem;">${c.email}</td>
-      <td style="color:var(--muted);font-size:0.82rem;">${c.phone || '—'}</td>
+      <td><strong>${escapeHtml(c.name)}</strong></td>
+      <td style="color:var(--muted);font-size:0.82rem;">${escapeHtml(c.email)}</td>
+      <td style="color:var(--muted);font-size:0.82rem;">${escapeHtml(c.phone) || '—'}</td>
       <td style="color:var(--muted);">—</td>
       <td style="color:var(--muted);font-size:0.78rem;">${formatDate(c.created_at)}</td>
       <td><button class="btn btn-outline btn-sm" onclick="showView('projects')">View Projects</button></td>
@@ -624,10 +628,6 @@ async function saveClient() {
   const phone = document.getElementById('cPhone').value.trim();
   const notes = document.getElementById('cNotes').value.trim();
   if (!name || !email) { showToast('Name and email are required', true); return; }
-
-  // Create auth user (they get a magic link email)
-  const { data: authData, error: authErr } = await db.auth.admin ? 
-    { data: null, error: null } : { data: null, error: null };
 
   // Insert client record
   const { error } = await db.from('clients').insert([{ name, email, phone, notes }]);
@@ -658,11 +658,11 @@ async function loadProjects() {
     <div class="table-wrap" style="border-radius:3px;">
       <div class="table-header" style="flex-wrap:wrap;gap:12px;">
         <div>
-          <div class="table-title">${p.title}</div>
-          <div style="font-size:0.75rem;color:var(--muted);margin-top:4px;">${p.clients?.name || 'No client'} · ${p.service_type || '—'} · ${p.location || '—'}</div>
+          <div class="table-title">${escapeHtml(p.title)}</div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:4px;">${escapeHtml(p.clients?.name) || 'No client'} · ${escapeHtml(p.service_type) || '—'} · ${escapeHtml(p.location) || '—'}</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
-          <span class="badge badge-${p.status}">${p.status}</span>
+          <span class="badge badge-${escapeHtml(p.status)}">${escapeHtml(p.status)}</span>
           <button class="btn btn-outline btn-sm" onclick="openUpdateModal('${p.id}')">+ Update</button>
         </div>
       </div>
@@ -694,7 +694,7 @@ async function loadProjectUpdates(projectId) {
   el.innerHTML = `<div style="border-top:1px solid var(--border2);padding-top:12px;">` + data.map(u =>
     `<div style="display:flex;gap:12px;margin-bottom:10px;">
       <span style="font-size:0.9rem;">${u.update_type==='milestone'?'🏁':u.update_type==='issue'?'⚠️':u.update_type==='completion'?'✅':'📍'}</span>
-      <div><div style="font-size:0.82rem;font-weight:600;color:var(--white);">${u.title}</div><div style="font-size:0.75rem;color:var(--muted);">${u.description || ''}</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.25);margin-top:2px;">${formatDate(u.created_at)}</div></div>
+      <div><div style="font-size:0.82rem;font-weight:600;color:var(--white);">${escapeHtml(u.title)}</div><div style="font-size:0.75rem;color:var(--muted);">${escapeHtml(u.description)}</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.25);margin-top:2px;">${formatDate(u.created_at)}</div></div>
     </div>`
   ).join('') + `</div>`;
 }
@@ -702,7 +702,7 @@ async function loadProjectUpdates(projectId) {
 async function openProjectModal() {
   const { data: clients } = await db.from('clients').select('id, name');
   const select = document.getElementById('pClient');
-  select.innerHTML = '<option value="">Select client...</option>' + (clients || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  select.innerHTML = '<option value="">Select client...</option>' + (clients || []).map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
   openModal('projectModal');
 }
 
@@ -792,6 +792,20 @@ async function saveIntel() {
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function formatDate(d) { return new Date(d).toLocaleDateString('en-RW', { day: 'numeric', month: 'short', year: 'numeric' }); }
+
+// Escapes text before it's inserted as HTML. Enquiries, job applications, and
+// worker registrations are all submitted by the public with no login required —
+// this stops someone from injecting a <script> tag via those forms and having
+// it run inside your logged-in admin session when you view the record.
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 function formatMoney(n) { return 'RWF ' + (n || 0).toLocaleString(); }
 
 function showToast(msg, err = false) {

@@ -168,8 +168,8 @@
 <body>
 
 <script>
-  const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+  const SUPABASE_URL = 'https://jljpbbszkfucwitdaruo.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_9mum-2GrMjtlmzW72Df4Gw_ewoyMBtk';
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 </script>
@@ -452,10 +452,10 @@
     document.getElementById('recentWorkersTable').innerHTML = recent.length
       ? recent.map(w => `
           <tr onclick="openWorkerModal('${w.id}')" style="cursor:pointer;">
-            <td><strong>${w.name}</strong></td>
-            <td style="color:var(--muted);font-size:0.78rem;">${w.location || '—'}</td>
-            <td><div class="skill-tags">${(w.skills||[]).slice(0,2).map(s=>`<span class="skill-tag">${s}</span>`).join('')}${(w.skills||[]).length>2?`<span style="font-size:0.65rem;color:var(--muted);">+${w.skills.length-2}</span>`:''}</div></td>
-            <td><span class="avail-pill avail-${w.availability}">${w.availability||'—'}</span></td>
+            <td><strong>${escapeHtml(w.name)}</strong></td>
+            <td style="color:var(--muted);font-size:0.78rem;">${escapeHtml(w.location) || '—'}</td>
+            <td><div class="skill-tags">${(w.skills||[]).slice(0,2).map(s=>`<span class="skill-tag">${escapeHtml(s)}</span>`).join('')}${(w.skills||[]).length>2?`<span style="font-size:0.65rem;color:var(--muted);">+${w.skills.length-2}</span>`:''}</div></td>
+            <td><span class="avail-pill avail-${escapeHtml(w.availability)}">${escapeHtml(w.availability) || '—'}</span></td>
             <td style="color:var(--muted);font-size:0.72rem;">${formatDate(w.created_at)}</td>
           </tr>`).join('')
       : '<tr class="empty-row"><td colspan="5">No workers registered yet.</td></tr>';
@@ -513,17 +513,17 @@
     document.getElementById('workerTable').innerHTML = workers.length
       ? workers.map(w => `
           <tr>
-            <td><strong style="cursor:pointer;color:var(--gold);" onclick="openWorkerModal('${w.id}')">${w.name}</strong></td>
-            <td style="color:var(--muted);font-size:0.78rem;">${w.phone}</td>
-            <td style="color:var(--muted);font-size:0.78rem;">${w.location||'—'}</td>
-            <td><div class="skill-tags">${(w.skills||[]).slice(0,2).map(s=>`<span class="skill-tag">${s}</span>`).join('')}${(w.skills||[]).length>2?`<span style="font-size:0.65rem;color:var(--muted);padding:2px 4px;">+${w.skills.length-2} more</span>`:''}</div></td>
-            <td style="color:var(--muted);font-size:0.78rem;">${w.experience||'—'}</td>
-            <td><span class="avail-pill avail-${w.availability}">${w.availability||'—'}</span></td>
-            <td style="color:var(--muted);font-size:0.78rem;">${w.daily_rate||'—'}</td>
-            <td><span class="badge badge-${w.status||'active'}">${w.status||'active'}</span></td>
+            <td><strong style="cursor:pointer;color:var(--gold);" onclick="openWorkerModal('${w.id}')">${escapeHtml(w.name)}</strong></td>
+            <td style="color:var(--muted);font-size:0.78rem;">${escapeHtml(w.phone)}</td>
+            <td style="color:var(--muted);font-size:0.78rem;">${escapeHtml(w.location)||'—'}</td>
+            <td><div class="skill-tags">${(w.skills||[]).slice(0,2).map(s=>`<span class="skill-tag">${escapeHtml(s)}</span>`).join('')}${(w.skills||[]).length>2?`<span style="font-size:0.65rem;color:var(--muted);padding:2px 4px;">+${w.skills.length-2} more</span>`:''}</div></td>
+            <td style="color:var(--muted);font-size:0.78rem;">${escapeHtml(w.experience)||'—'}</td>
+            <td><span class="avail-pill avail-${escapeHtml(w.availability)}">${escapeHtml(w.availability)||'—'}</span></td>
+            <td style="color:var(--muted);font-size:0.78rem;">${escapeHtml(w.daily_rate)||'—'}</td>
+            <td><span class="badge badge-${escapeHtml(w.status)||'active'}">${escapeHtml(w.status)||'active'}</span></td>
             <td>
               <button class="btn btn-outline btn-sm" onclick="openWorkerModal('${w.id}')">View</button>
-              ${w.file_url ? `<a href="${w.file_url}" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none;margin-left:4px;">📎 File</a>` : ''}
+              ${w.file_url ? `<a href="${encodeURI(w.file_url)}" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none;margin-left:4px;">📎 File</a>` : ''}
             </td>
           </tr>`).join('')
       : '<tr class="empty-row"><td colspan="9">No workers match your filters.</td></tr>';
@@ -535,21 +535,21 @@
     if (!w) return;
     document.getElementById('workerModalBody').innerHTML = `
       <div class="detail-grid">
-        <div class="detail-block"><div class="detail-label">Name</div><div class="detail-value">${w.name}</div></div>
-        <div class="detail-block"><div class="detail-label">Phone</div><div class="detail-value"><a href="tel:${w.phone}" style="color:var(--gold);">${w.phone}</a></div></div>
-        <div class="detail-block"><div class="detail-label">Location</div><div class="detail-value">${w.location||'—'}</div></div>
-        <div class="detail-block"><div class="detail-label">Experience</div><div class="detail-value">${w.experience||'—'}</div></div>
-        <div class="detail-block"><div class="detail-label">Availability</div><div class="detail-value"><span class="avail-pill avail-${w.availability}">${w.availability||'—'}</span></div></div>
-        <div class="detail-block"><div class="detail-label">Work Type</div><div class="detail-value">${w.work_type||'—'}</div></div>
-        <div class="detail-block"><div class="detail-label">Daily Rate</div><div class="detail-value">${w.daily_rate||'Not specified'}</div></div>
+        <div class="detail-block"><div class="detail-label">Name</div><div class="detail-value">${escapeHtml(w.name)}</div></div>
+        <div class="detail-block"><div class="detail-label">Phone</div><div class="detail-value"><a href="tel:${encodeURIComponent(w.phone)}" style="color:var(--gold);">${escapeHtml(w.phone)}</a></div></div>
+        <div class="detail-block"><div class="detail-label">Location</div><div class="detail-value">${escapeHtml(w.location)||'—'}</div></div>
+        <div class="detail-block"><div class="detail-label">Experience</div><div class="detail-value">${escapeHtml(w.experience)||'—'}</div></div>
+        <div class="detail-block"><div class="detail-label">Availability</div><div class="detail-value"><span class="avail-pill avail-${escapeHtml(w.availability)}">${escapeHtml(w.availability)||'—'}</span></div></div>
+        <div class="detail-block"><div class="detail-label">Work Type</div><div class="detail-value">${escapeHtml(w.work_type)||'—'}</div></div>
+        <div class="detail-block"><div class="detail-label">Daily Rate</div><div class="detail-value">${escapeHtml(w.daily_rate)||'Not specified'}</div></div>
         <div class="detail-block"><div class="detail-label">Times Hired</div><div class="detail-value">${w.times_hired||0}</div></div>
       </div>
       <div class="detail-section">
         <div class="detail-label">Skills (${(w.skills||[]).length})</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">${(w.skills||[]).map(s=>`<span class="skill-tag">${s}</span>`).join('')||'None listed'}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">${(w.skills||[]).map(s=>`<span class="skill-tag">${escapeHtml(s)}</span>`).join('')||'None listed'}</div>
       </div>
-      ${w.bio ? `<div class="detail-section"><div class="detail-label">About</div><div class="detail-value" style="color:var(--muted);line-height:1.7;">${w.bio}</div></div>` : ''}
-      ${w.file_url ? `<div class="detail-section"><div class="detail-label">Uploaded File</div><a href="${w.file_url}" target="_blank" style="color:var(--gold);font-size:0.85rem;display:inline-flex;align-items:center;gap:6px;margin-top:6px;">📎 View / Download File</a></div>` : ''}
+      ${w.bio ? `<div class="detail-section"><div class="detail-label">About</div><div class="detail-value" style="color:var(--muted);line-height:1.7;">${escapeHtml(w.bio)}</div></div>` : ''}
+      ${w.file_url ? `<div class="detail-section"><div class="detail-label">Uploaded File</div><a href="${encodeURI(w.file_url)}" target="_blank" style="color:var(--gold);font-size:0.85rem;display:inline-flex;align-items:center;gap:6px;margin-top:6px;">📎 View / Download File</a></div>` : ''}
       <hr style="border:none;border-top:1px solid var(--border2);margin:20px 0;">
       <div class="field-row">
         <div class="field-group"><label>Update Status</label>
@@ -564,11 +564,11 @@
         </div>
       </div>
       <div class="field-group"><label>Admin Notes (private)</label>
-        <textarea id="wNotes" placeholder="Your private notes about this worker...">${w.admin_notes||''}</textarea>
+        <textarea id="wNotes" placeholder="Your private notes about this worker...">${escapeHtml(w.admin_notes)}</textarea>
       </div>
       <div style="display:flex;gap:10px;margin-top:4px;">
-        <a href="https://wa.me/${w.phone?.replace(/\D/g,'')}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;padding:9px 16px;border-radius:2px;text-decoration:none;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">💬 WhatsApp</a>
-        <a href="tel:${w.phone}" style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border2);color:var(--muted);padding:9px 16px;border-radius:2px;text-decoration:none;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">📞 Call</a>
+        <a href="https://wa.me/${encodeURIComponent(w.phone?.replace(/\D/g,'')||'')}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;padding:9px 16px;border-radius:2px;text-decoration:none;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">💬 WhatsApp</a>
+        <a href="tel:${encodeURIComponent(w.phone||'')}" style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border2);color:var(--muted);padding:9px 16px;border-radius:2px;text-decoration:none;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">📞 Call</a>
       </div>
     `;
     openModal('workerModal');
@@ -615,8 +615,8 @@
     list.innerHTML = jobs.map(j => `
       <div class="job-item">
         <div class="job-item-left">
-          <div class="job-item-title">${j.title} <span class="badge badge-${j.is_active?'active':'inactive'}" style="margin-left:8px;">${j.is_active?'Active':'Closed'}</span></div>
-          <div class="job-item-meta">${j.job_type} · ${j.location||'—'} · ${j.rate||'Rate not set'} · Posted ${formatDate(j.created_at)}</div>
+          <div class="job-item-title">${escapeHtml(j.title)} <span class="badge badge-${j.is_active?'active':'inactive'}" style="margin-left:8px;">${j.is_active?'Active':'Closed'}</span></div>
+          <div class="job-item-meta">${escapeHtml(j.job_type)} · ${escapeHtml(j.location)||'—'} · ${escapeHtml(j.rate)||'Rate not set'} · Posted ${formatDate(j.created_at)}</div>
         </div>
         <div class="job-item-actions">
           <button class="btn btn-outline btn-sm" onclick="toggleJob('${j.id}',${j.is_active})">${j.is_active?'Close Job':'Re-open'}</button>
@@ -673,16 +673,16 @@
     document.getElementById('appTable').innerHTML = apps.length
       ? apps.map(a => `
           <tr>
-            <td><strong>${a.name}</strong></td>
-            <td style="color:var(--muted);">${a.phone}</td>
-            <td style="color:var(--muted);font-size:0.78rem;">${a.job_postings?.title||'—'}</td>
-            <td style="color:var(--muted);font-size:0.78rem;max-width:200px;">${(a.message||'—').substring(0,80)}${(a.message||'').length>80?'...':''}</td>
-            <td><span class="badge badge-${a.status}">${a.status}</span></td>
+            <td><strong>${escapeHtml(a.name)}</strong></td>
+            <td style="color:var(--muted);">${escapeHtml(a.phone)}</td>
+            <td style="color:var(--muted);font-size:0.78rem;">${escapeHtml(a.job_postings?.title)||'—'}</td>
+            <td style="color:var(--muted);font-size:0.78rem;max-width:200px;">${escapeHtml((a.message||'—').substring(0,80))}${(a.message||'').length>80?'...':''}</td>
+            <td><span class="badge badge-${escapeHtml(a.status)}">${escapeHtml(a.status)}</span></td>
             <td style="color:var(--muted);font-size:0.72rem;">${formatDate(a.created_at)}</td>
             <td style="display:flex;gap:6px;">
               <button class="btn btn-outline btn-sm" onclick="updateAppStatus('${a.id}','shortlisted')">Shortlist</button>
               <button class="btn btn-outline btn-sm" onclick="updateAppStatus('${a.id}','hired')">Hire</button>
-              <a href="https://wa.me/${a.phone?.replace(/\D/g,'')}" target="_blank" class="btn btn-green btn-sm" style="text-decoration:none;">WhatsApp</a>
+              <a href="https://wa.me/${encodeURIComponent(a.phone?.replace(/\D/g,'')||'')}" target="_blank" class="btn btn-green btn-sm" style="text-decoration:none;">WhatsApp</a>
             </td>
           </tr>`).join('')
       : '<tr class="empty-row"><td colspan="7">No applications yet.</td></tr>';
@@ -699,6 +699,20 @@
   function openModal(id) { document.getElementById(id).classList.add('open'); }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
   function formatDate(d) { return new Date(d).toLocaleDateString('en-RW', { day: 'numeric', month: 'short', year: 'numeric' }); }
+
+  // Escapes text before it's inserted as HTML. Worker registrations and job
+  // applications are both submitted by the public with no login required —
+  // this stops a malicious submission from running a script inside your
+  // logged-in admin session when you view it.
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
   function showToast(msg, err=false) {
     const t = document.getElementById('toast');
     t.textContent = err ? '✕ ' + msg : '✓ ' + msg;

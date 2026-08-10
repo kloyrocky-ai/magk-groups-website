@@ -1,0 +1,17 @@
+# M.A.G.K Groups — Cloudflare Pages headers
+# Cloudflare Pages reads this file automatically (no build step needed).
+# A root-level 404.html is already served automatically for any
+# unmatched path, same as it was on Netlify — no redirect rule needed.
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://jljpbbszkfucwitdaruo.supabase.co; connect-src 'self' https://jljpbbszkfucwitdaruo.supabase.co; frame-ancestors 'none'
+
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable

@@ -13,4 +13,4 @@ Disallow: /admin.html
 Disallow: /uploads.html
 
 # Sitemap location
-Sitemap: https://magkgroups.netlify.app/sitemap.xml
+Sitemap: https://magk-groups.kloyrocky.workers.dev/sitemap.xml

@@ -107,6 +107,22 @@
   .timeline-content p{font-size:0.8rem;color:var(--muted);line-height:1.6;}
   .timeline-date{font-size:0.7rem;color:rgba(255,255,255,0.25);margin-top:4px;}
 
+  /* Media gallery within a timeline update */
+  .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px;margin-top:12px;max-width:420px;}
+  .media-thumb{position:relative;aspect-ratio:1;border-radius:3px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid var(--border2);cursor:pointer;transition:border-color 0.2s;}
+  .media-thumb:hover{border-color:var(--gold);}
+  .media-thumb img,.media-thumb video{width:100%;height:100%;object-fit:cover;display:block;}
+  .media-play-icon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff;background:rgba(0,0,0,0.25);}
+  .media-doc{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;text-align:center;}
+  .media-doc span.ic{font-size:1.4rem;margin-bottom:4px;}
+  .media-doc span.nm{font-size:0.55rem;color:rgba(255,255,255,0.4);word-break:break-all;line-height:1.3;}
+
+  /* Lightbox for viewing full photos/videos */
+  .lightbox-overlay{display:none;position:fixed;inset:0;background:rgba(5,5,8,0.92);z-index:1000;align-items:center;justify-content:center;padding:24px;}
+  .lightbox-overlay.open{display:flex;}
+  .lightbox-overlay img,.lightbox-overlay video{max-width:100%;max-height:85vh;border-radius:4px;}
+  .lightbox-close{position:absolute;top:20px;right:24px;font-size:1.6rem;color:var(--white);cursor:pointer;background:none;border:none;}
+
   .empty-state{text-align:center;padding:60px 24px;color:var(--muted);}
   .empty-state h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;color:var(--white);margin-bottom:8px;}
   .empty-state p{font-size:0.85rem;line-height:1.7;}
@@ -253,7 +269,7 @@ async function loadClientPortal(user) {
 
   for (const project of projects) {
     const { data: updates } = await db.from('project_updates')
-      .select('*')
+      .select('*, project_media(*)')
       .eq('project_id', project.id)
       .order('created_at', { ascending: false });
 
@@ -267,17 +283,17 @@ async function loadClientPortal(user) {
       <div class="project-card-head">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
           <div>
-            <div class="project-card-title">${project.title}</div>
+            <div class="project-card-title">${escapeHtml(project.title)}</div>
             <div class="project-meta">
-              <span class="meta-item"><strong>Service:</strong> ${project.service_type || '—'}</span>
-              <span class="meta-item"><strong>Location:</strong> ${project.location || '—'}</span>
+              <span class="meta-item"><strong>Service:</strong> ${escapeHtml(project.service_type) || '—'}</span>
+              <span class="meta-item"><strong>Location:</strong> ${escapeHtml(project.location) || '—'}</span>
               ${project.start_date ? `<span class="meta-item"><strong>Start:</strong> ${formatDate(project.start_date)}</span>` : ''}
               ${project.end_date ? `<span class="meta-item"><strong>Expected:</strong> ${formatDate(project.end_date)}</span>` : ''}
             </div>
           </div>
-          <span class="status-pill status-${project.status}">${project.status.replace('_',' ')}</span>
+          <span class="status-pill status-${escapeHtml(project.status)}">${escapeHtml(project.status).replace('_',' ')}</span>
         </div>
-        ${project.description ? `<p style="font-size:0.85rem;color:var(--muted);margin-top:14px;line-height:1.7;">${project.description}</p>` : ''}
+        ${project.description ? `<p style="font-size:0.85rem;color:var(--muted);margin-top:14px;line-height:1.7;">${escapeHtml(project.description)}</p>` : ''}
       </div>
 
       <div class="progress-section">
@@ -300,16 +316,20 @@ async function loadClientPortal(user) {
       <div class="timeline-section">
         <div class="timeline-title">Project Updates & Milestones</div>
         <div class="timeline">
-          ${updates && updates.length > 0 ? updates.map(u => `
+          ${updates && updates.length > 0 ? updates.map(u => {
+            const visibleMedia = (u.project_media || []).filter(m => m.client_visible !== false);
+            return `
             <div class="timeline-item">
               <div class="timeline-dot ${dotType[u.update_type] || 'dot-progress'}">${dotIcon[u.update_type] || '📍'}</div>
               <div class="timeline-content">
-                <h4>${u.title}</h4>
-                ${u.description ? `<p>${u.description}</p>` : ''}
+                <h4>${escapeHtml(u.title)}</h4>
+                ${u.description ? `<p>${escapeHtml(u.description)}</p>` : ''}
+                ${visibleMedia.length > 0 ? `<div class="media-grid">${visibleMedia.map(m => renderClientMediaThumb(m)).join('')}</div>` : ''}
                 <div class="timeline-date">${formatDate(u.created_at)}</div>
               </div>
             </div>
-          `).join('') : `
+          `;
+          }).join('') : `
             <div style="color:var(--muted);font-size:0.82rem;text-align:center;padding:24px;">
               No updates posted yet. Your project manager will post updates as work progresses.
             </div>
@@ -325,6 +345,53 @@ async function loadClientPortal(user) {
 function formatDate(d) {
   return new Date(d).toLocaleDateString('en-RW', { day: 'numeric', month: 'long', year: 'numeric' });
 }
+
+// Escapes text before it's inserted as HTML, so a project/update field
+// can never inject a script tag or broken markup into the page.
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Renders one media thumbnail (photo, video, or document) for the client view
+function renderClientMediaThumb(m) {
+  const docIcons = { pdf: '📄', drawing: '📐', document: '📝', spreadsheet: '📊', video: '🎥' };
+  if (m.file_type === 'image') {
+    return `<div class="media-thumb" onclick="openLightbox('${encodeURI(m.file_url)}','image')">
+      <img src="${m.file_url}" alt="${escapeHtml(m.file_name || 'project photo')}" loading="lazy"></div>`;
+  }
+  if (m.file_type === 'video') {
+    return `<div class="media-thumb" onclick="openLightbox('${encodeURI(m.file_url)}','video')">
+      <video src="${m.file_url}" muted preload="metadata"></video>
+      <div class="media-play-icon">▶</div></div>`;
+  }
+  const icon = docIcons[m.file_type] || '📁';
+  return `<div class="media-thumb" onclick="window.open('${encodeURI(m.file_url)}','_blank')" title="Tap to open">
+    <div class="media-doc"><span class="ic">${icon}</span><span class="nm">${escapeHtml((m.file_name || 'file').substring(0, 22))}</span></div></div>`;
+}
+
+function openLightbox(url, type) {
+  const overlay = document.getElementById('lightboxOverlay');
+  const body = document.getElementById('lightboxBody');
+  body.innerHTML = type === 'video'
+    ? `<video src="${url}" controls autoplay></video>`
+    : `<img src="${url}" alt="Project photo">`;
+  overlay.classList.add('open');
+}
+
+function closeLightbox() {
+  document.getElementById('lightboxOverlay').classList.remove('open');
+  document.getElementById('lightboxBody').innerHTML = '';
+}
 </script>
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="if(event.target===this)closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <div id="lightboxBody"></div>
+</div>
 </body>
 </html>
