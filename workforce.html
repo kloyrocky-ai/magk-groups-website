@@ -563,8 +563,10 @@
 
   // ── Skill chips ───────────────────────────────────────────────
   document.querySelectorAll('.skill-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      chip.classList.toggle('selected');
+    const input = chip.querySelector('input[type="checkbox"]');
+    if (!input) return;
+    input.addEventListener('change', () => {
+      chip.classList.toggle('selected', input.checked);
     });
   });
 
@@ -669,7 +671,11 @@
       document.getElementById('wWorkType').value = '';
       document.getElementById('wRate').value = '';
       document.getElementById('wBio').value = '';
-      document.querySelectorAll('.skill-chip').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('.skill-chip').forEach(c => {
+        c.classList.remove('selected');
+        const inp = c.querySelector('input[type="checkbox"]');
+        if (inp) inp.checked = false;
+      });
       removeWorkerFile();
       btn.disabled = false;
       btn.textContent = 'Submit Registration';
